@@ -1,0 +1,53 @@
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dexter-windows-autonomy"
+version = "0.1.1"
+description = "Windows-first Dexter with single-source-of-truth DENY list and cockpit UI"
+authors = [{name="Dexter Repo Analyzer", email="dexter@example.com"}]
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "fastapi",
+  "uvicorn[standard]",
+  "pydantic>=2",
+  "pywin32",
+  "pywinauto",
+  "pyautogui",
+  "mss",
+  "Pillow",
+  "pytesseract",
+  "watchdog",
+  "websockets",
+  "structlog",
+  "pyyaml",
+  "requests",
+  "sqlite-utils",
+  "scikit-learn",
+  "numpy",
+  "pytest",
+  "celery; python_version >= '3.10'",  # Optional dependency
+  "redis; python_version >= '3.10'",   # Optional dependency
+]
+
+[tool.setuptools]
+packages = [
+  "dexter_autonomy",
+  "dexter_autonomy.agents",
+  "dexter_autonomy.agents.adapters",
+  "dexter_autonomy.agents.council",
+  "dexter_autonomy.brain",
+  "dexter_autonomy.core",
+  "dexter_autonomy.tasks",
+  "dexter_autonomy.tools",
+  "dexter_autonomy.tools.common",
+  "dexter_autonomy.tools.windows",
+  "dexter_autonomy.ui_bridge",
+  "dexter_autonomy.workers",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]

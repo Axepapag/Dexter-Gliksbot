@@ -1,0 +1,8 @@
+Dexter context seed (paste at top of a new chat):
+- Windows-first Dexter with resizable WPF cockpit that docks native windows directly (overlay retired).
+- Single-source-of-truth policy tiers in `configs/denylist.profiles.yml` (low/medium/high) + overlay catalog in `configs/policy_catalog.yml`.
+- Agent slots (endpoints, models, prompts) defined in `configs/slots.yml`; default slot is Ollama Cloud (`qwen2.5:32b-cloud`) using `OLLAMA_CLOUD_KEY`.
+- Backend FastAPI @ 127.0.0.1:8765 with WebSocket fan-out for cockpit streaming.
+- Planner + ChatDock call Ollama via adapters (cloud or local) and fall back to deterministic parsing if unavailable.
+- Every cockpit change (policy, slots) persists through the API so backend + UI stay in sync.
+- Panic hotkey: Ctrl+Alt+P closes DexterCockpit if automation misbehaves.
