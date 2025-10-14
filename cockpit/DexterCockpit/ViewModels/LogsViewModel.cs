@@ -336,16 +336,16 @@ public partial class LogsViewModel : ObservableObject
         MemoryUsagePercent = (_currentMemoryUsageBytes / (double)MAX_MEMORY_BYTES) * 100.0;
     }
 
-    private LogLevel ParseLogLevel(string level)
+    private Models.LogLevel ParseLogLevel(string level)
     {
         return level.ToUpper() switch
         {
-            "TRACE" => LogLevel.TRACE,
-            "INFO" => LogLevel.INFO,
-            "WARN" => LogLevel.WARN,
-            "ERROR" => LogLevel.ERROR,
-            "CRITICAL" => LogLevel.CRITICAL,
-            _ => LogLevel.INFO
+            "TRACE" => Models.LogLevel.TRACE,
+            "INFO" => Models.LogLevel.INFO,
+            "WARN" => Models.LogLevel.WARN,
+            "ERROR" => Models.LogLevel.ERROR,
+            "CRITICAL" => Models.LogLevel.CRITICAL,
+            _ => Models.LogLevel.INFO
         };
     }
 

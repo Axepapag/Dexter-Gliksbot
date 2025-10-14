@@ -50,23 +50,23 @@ public partial class PerformanceViewModel : ObservableObject
         _logger = logger;
 
         // Subscribe to performance metrics
-        _wsClient.PerformanceMetric += OnPerformanceMetricReceived;
+        _wsClient.PerformanceDataReceived += OnPerformanceDataReceived;
     }
 
-    private void OnPerformanceMetricReceived(object? sender, PerformanceMetricEventArgs e)
+    private void OnPerformanceDataReceived(object? sender, PerformanceDataEventArgs e)
     {
         System.Windows.Application.Current?.Dispatcher.Invoke(() =>
         {
-            CpuUsage = e.CpuUsage;
+            CpuUsage = e.CpuPercent;
             MemoryUsageMb = e.MemoryMb;
-            RedisQueueDepth = e.RedisQueueDepth;
+            RedisQueueDepth = 0; // Not in event args, keep at 0 or remove if not needed
             BrainSizeMb = e.BrainSizeMb;
-            MessagesPerSecond = e.MessagesPerSecond;
-            AvgLatencyMs = e.AvgLatencyMs;
+            MessagesPerSecond = e.EventBusMessagesPerSec;
+            AvgLatencyMs = 0; // Not in event args, keep at 0 or remove if not needed
 
             // Add to history for charts
-            var timestamp = DateTime.UtcNow;
-            CpuHistory.Add(new PerformanceDataPoint { Timestamp = timestamp, Value = e.CpuUsage });
+            var timestamp = e.Timestamp;
+            CpuHistory.Add(new PerformanceDataPoint { Timestamp = timestamp, Value = e.CpuPercent });
             MemoryHistory.Add(new PerformanceDataPoint { Timestamp = timestamp, Value = e.MemoryMb });
 
             // Keep last 60 data points (1 minute at 1sec interval)
@@ -77,7 +77,7 @@ public partial class PerformanceViewModel : ObservableObject
 
     public void Dispose()
     {
-        _wsClient.PerformanceMetric -= OnPerformanceMetricReceived;
+        _wsClient.PerformanceDataReceived -= OnPerformanceDataReceived;
     }
 }
 
