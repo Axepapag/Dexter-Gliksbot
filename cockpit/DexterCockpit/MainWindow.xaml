@@ -79,67 +79,72 @@
             </xcad:DockingManager.Theme>
 
             <xcad:LayoutRoot>
-                <xcad:LayoutPanel Orientation="Horizontal">
+                <!-- Single root panel with vertical orientation to stack main content and bottom logs -->
+                <xcad:LayoutPanel Orientation="Vertical">
                     
-                    <!-- LEFT: Agent Roster -->
-                    <xcad:LayoutAnchorablePane DockWidth="300">
-                        <xcad:LayoutAnchorable Title="Agent Roster" 
-                                               CanClose="False" 
-                                               CanHide="True"
-                                               CanFloat="True"
-                                               IconSource="/Resources/agent-icon.png">
-                            <views:AgentRosterView DataContext="{Binding AgentRoster}"/>
-                        </xcad:LayoutAnchorable>
-                    </xcad:LayoutAnchorablePane>
+                    <!-- TOP: Main content area (horizontal layout) -->
+                    <xcad:LayoutPanel Orientation="Horizontal">
+                        
+                        <!-- LEFT: Agent Roster -->
+                        <xcad:LayoutAnchorablePane DockWidth="300">
+                            <xcad:LayoutAnchorable Title="Agent Roster" 
+                                                   CanClose="False" 
+                                                   CanHide="True"
+                                                   CanFloat="True"
+                                                   IconSource="/Resources/agent-icon.png">
+                                <views:AgentRosterView DataContext="{Binding AgentRoster}"/>
+                            </xcad:LayoutAnchorable>
+                        </xcad:LayoutAnchorablePane>
 
-                    <!-- CENTER: Main Content -->
-                    <xcad:LayoutDocumentPane>
-                        <!-- Main Chat Window -->
-                        <xcad:LayoutDocument Title="Dexter Chat" 
-                                             CanClose="False"
-                                             IconSource="/Resources/chat-icon.png">
-                            <views:ChatView DataContext="{Binding Chat}"/>
-                        </xcad:LayoutDocument>
+                        <!-- CENTER: Main Content -->
+                        <xcad:LayoutDocumentPane>
+                            <!-- Main Chat Window -->
+                            <xcad:LayoutDocument Title="Dexter Chat" 
+                                                 CanClose="False"
+                                                 IconSource="/Resources/chat-icon.png">
+                                <views:ChatView DataContext="{Binding Chat}"/>
+                            </xcad:LayoutDocument>
 
-                        <!-- Performance Monitor -->
-                        <xcad:LayoutDocument Title="Performance Monitor"
-                                             IconSource="/Resources/chart-icon.png">
-                            <views:PerformanceView DataContext="{Binding Performance}"/>
-                        </xcad:LayoutDocument>
+                            <!-- Performance Monitor -->
+                            <xcad:LayoutDocument Title="Performance Monitor"
+                                                 IconSource="/Resources/chart-icon.png">
+                                <views:PerformanceView DataContext="{Binding Performance}"/>
+                            </xcad:LayoutDocument>
 
-                        <!-- Agent Tabs (dynamically added) -->
-                        <!-- Per-agent tabs will be added here programmatically -->
-                    </xcad:LayoutDocumentPane>
+                            <!-- Agent Tabs (dynamically added) -->
+                            <!-- Per-agent tabs will be added here programmatically -->
+                        </xcad:LayoutDocumentPane>
 
-                    <!-- RIGHT: Docked Windows (future: Unity, QuickBooks, etc.) -->
-                    <xcad:LayoutAnchorablePane DockWidth="350">
-                        <xcad:LayoutAnchorable Title="Docked Windows" 
-                                               CanClose="False"
-                                               CanHide="True"
-                                               CanFloat="True"
-                                               IconSource="/Resources/window-icon.png">
-                            <TextBlock Text="External app docking (Phase 2)" 
-                                       VerticalAlignment="Center" 
-                                       HorizontalAlignment="Center"
-                                       Foreground="Gray"/>
-                        </xcad:LayoutAnchorable>
-                    </xcad:LayoutAnchorablePane>
+                        <!-- RIGHT: Docked Windows (future: Unity, QuickBooks, etc.) -->
+                        <xcad:LayoutAnchorablePane DockWidth="350">
+                            <xcad:LayoutAnchorable Title="Docked Windows" 
+                                                   CanClose="False"
+                                                   CanHide="True"
+                                                   CanFloat="True"
+                                                   IconSource="/Resources/window-icon.png">
+                                <TextBlock Text="External app docking (Phase 2)" 
+                                           VerticalAlignment="Center" 
+                                           HorizontalAlignment="Center"
+                                           Foreground="Gray"/>
+                            </xcad:LayoutAnchorable>
+                        </xcad:LayoutAnchorablePane>
+
+                    </xcad:LayoutPanel>
+
+                    <!-- BOTTOM: Logs Panel -->
+                    <xcad:LayoutAnchorablePaneGroup Orientation="Horizontal" DockHeight="250">
+                        <xcad:LayoutAnchorablePane>
+                            <xcad:LayoutAnchorable Title="Real-Time Logs" 
+                                                   CanClose="False"
+                                                   CanHide="True"
+                                                   CanFloat="True"
+                                                   IconSource="/Resources/log-icon.png">
+                                <views:LogsView DataContext="{Binding Logs}"/>
+                            </xcad:LayoutAnchorable>
+                        </xcad:LayoutAnchorablePane>
+                    </xcad:LayoutAnchorablePaneGroup>
 
                 </xcad:LayoutPanel>
-
-                <!-- BOTTOM: Logs Panel -->
-                <xcad:LayoutAnchorablePaneGroup Orientation="Vertical" DockHeight="250">
-                    <xcad:LayoutAnchorablePane>
-                        <xcad:LayoutAnchorable Title="Real-Time Logs" 
-                                               CanClose="False"
-                                               CanHide="True"
-                                               CanFloat="True"
-                                               IconSource="/Resources/log-icon.png">
-                            <views:LogsView DataContext="{Binding Logs}"/>
-                        </xcad:LayoutAnchorable>
-                    </xcad:LayoutAnchorablePane>
-                </xcad:LayoutAnchorablePaneGroup>
-
             </xcad:LayoutRoot>
         </xcad:DockingManager>
 
