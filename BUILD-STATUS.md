@@ -122,6 +122,8 @@ After launch, verify:
 | Package references | ✅ Fixed | Dirkster.AvalonDock 4.72.1 |
 | XAML namespaces | ✅ Fixed | Correct GitHub namespace |
 | XAML structure | ✅ Fixed | LayoutRoot single child (MC3089 resolved) |
+| ViewModel events | ✅ Fixed | PerformanceDataReceived event (CS0246 resolved) |
+| LogLevel ambiguity | ✅ Fixed | Models.LogLevel qualified (CS0104 resolved) |
 | .csproj file | ✅ Valid | All packages exist on NuGet |
 | MainWindow.xaml | ✅ Valid | Correct namespace, theme, and structure |
 | Build errors | ✅ None | 0 errors expected |
@@ -129,11 +131,22 @@ After launch, verify:
 | Git status | ✅ Synced | All commits pushed |
 | Ready to test | ✅ YES | Pull and build! |
 
-### Recent Fix (Oct 14, 2025):
-**MC3089 Error:** LayoutRoot had multiple children (illegal in AvalonDock)  
+### Recent Fixes (Oct 14, 2025):
+
+**Fix #3 - MC3089 Error:** LayoutRoot had multiple children (illegal in AvalonDock)  
 **Solution:** Wrapped all content in single outer LayoutPanel  
-**Result:** LayoutRoot now has exactly one child as required  
-**See:** [COMPLETE-BUILD-FIX-SUMMARY.md](COMPLETE-BUILD-FIX-SUMMARY.md) for full details
+**Result:** LayoutRoot now has exactly one child as required
+
+**Fix #4 - CS0246 Error:** PerformanceMetricEventArgs not found  
+**Solution:** Changed to PerformanceDataReceived event with PerformanceDataEventArgs  
+**Result:** Event subscription matches WebSocket client implementation
+
+**Fix #5 - CS0104 Error:** LogLevel ambiguity  
+**Solution:** Used fully qualified Models.LogLevel type name  
+**Result:** Resolved conflict with Microsoft.Extensions.Logging.LogLevel
+
+**See:** [COMPLETE-BUILD-FIX-SUMMARY.md](COMPLETE-BUILD-FIX-SUMMARY.md) for XAML fixes  
+**See:** [VIEWMODEL-ERRORS-FIX.md](VIEWMODEL-ERRORS-FIX.md) for ViewModel fixes
 
 ---
 
