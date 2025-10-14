@@ -4,6 +4,20 @@
 
 ## 🚀 Quick Start
 
+### Option 1: GitHub Codespaces (Recommended for Quick Testing)
+
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/Axepapag/Dexter-Gliksbot/codespaces)
+
+Instantly start developing in the cloud:
+1. Click the badge above or go to Code → Codespaces → Create codespace
+2. Wait for automatic setup (~3-5 minutes)
+3. Edit `.env` to add API keys
+4. Run `python start.py --port 8765`
+
+**Note**: Codespaces runs on Linux. Windows-specific features (OCR, WPF Cockpit) require local Windows setup.
+
+### Option 2: Local Installation
+
 ```bash
 # Install dependencies
 pip install -r requirements.txt
@@ -65,12 +79,23 @@ See [.github/copilot-instructions.md](.github/copilot-instructions.md) for compr
 - **Multi-Tier Memory**: STM (10GB RAM) + LTM (SQLite persistent)
 - **Context-Aware Retrieval**: RAG-style agent responses
 
+## 🖥️ Development Environments
+
+| Environment | Best For | Limitations |
+|-------------|----------|-------------|
+| **GitHub Codespaces** | Quick testing, API development, cross-platform work | No Windows automation (OCR, pyautogui), no WPF Cockpit |
+| **Local Windows** | Full features, Windows automation, Cockpit UI | Requires Windows Server 2022 or Windows 10/11 |
+| **Local Linux/Mac** | API development, testing, backend work | No Windows-specific features |
+
+See [.devcontainer/README.md](.devcontainer/README.md) for Codespaces setup details.
+
 ## 📚 Documentation
 
 | Document | Description |
 |----------|-------------|
 | [README-WEBSOCKET.md](README-WEBSOCKET.md) | Complete WebSocket implementation summary |
 | [WEBSOCKET_TESTING.md](WEBSOCKET_TESTING.md) | Testing guide (scenarios, performance, troubleshooting) |
+| [.devcontainer/README.md](.devcontainer/README.md) | GitHub Codespaces configuration and setup |
 | [.github/copilot-instructions.md](.github/copilot-instructions.md) | Architecture & design decisions |
 | [dexter_repo_technical_monetization_report_da.md](dexter_repo_technical_monetization_report_da.md) | Technical overview |
 

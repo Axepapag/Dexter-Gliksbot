@@ -82,3 +82,7 @@ docs/.doctrees/
 # Memory bank (track in git but ignore large files)
 memory-bank/*.jsonl
 memory-bank/*.db
+
+# Codespaces
+.devcontainer/.env
+.devcontainer/*.log
