@@ -232,3 +232,15 @@ class MigrationManager:
             "applied_versions": list(applied),
             "latest_version": max(applied) if applied else None
         }
+
+
+def run_migrations(db_path: str | Path) -> None:
+    """
+    Convenience function to run all migrations on a database.
+    
+    Args:
+        db_path: Path to the SQLite database file
+    """
+    db_path = Path(db_path)
+    manager = MigrationManager(db_path)
+    manager.run_migrations()
