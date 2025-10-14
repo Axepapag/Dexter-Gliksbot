@@ -1,0 +1,199 @@
+<UserControl x:Class="DexterCockpit.Views.LogsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d" 
+             d:DesignHeight="250" d:DesignWidth="1200"
+             Background="#1E1E1E">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/> <!-- Toolbar -->
+            <RowDefinition Height="*"/>    <!-- Log list -->
+        </Grid.RowDefinitions>
+
+        <!-- Toolbar with Filters -->
+        <Border Grid.Row="0" Background="#2D2D30" Padding="8" BorderBrush="#007ACC" BorderThickness="0,0,0,1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Level Filters -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,15,0">
+                    <CheckBox IsChecked="{Binding ShowTrace}" Content="TRACE" Margin="4" FontSize="10"/>
+                    <CheckBox IsChecked="{Binding ShowInfo}" Content="INFO" Margin="4" FontSize="10"/>
+                    <CheckBox IsChecked="{Binding ShowWarn}" Content="WARN" Margin="4" FontSize="10"/>
+                    <CheckBox IsChecked="{Binding ShowError}" Content="ERROR" Margin="4" FontSize="10"/>
+                    <CheckBox IsChecked="{Binding ShowCritical}" Content="CRITICAL" Margin="4" FontSize="10"/>
+                </StackPanel>
+
+                <!-- Search Filters -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <TextBox Text="{Binding FilterAgent, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                             materialDesign:HintAssist.Hint="Filter by Agent"
+                             MinWidth="120"
+                             FontSize="11"
+                             Margin="4"/>
+
+                    <TextBox Text="{Binding FilterTopic, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                             materialDesign:HintAssist.Hint="Filter by Topic"
+                             MinWidth="120"
+                             FontSize="11"
+                             Margin="4"/>
+
+                    <TextBox Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                             materialDesign:HintAssist.Hint="Search text..."
+                             MinWidth="200"
+                             FontSize="11"
+                             Margin="4"/>
+                </StackPanel>
+
+                <!-- Controls -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <!-- Memory Usage -->
+                    <StackPanel Orientation="Horizontal" Margin="10,0">
+                        <materialDesign:PackIcon Kind="Memory" Width="16" Height="16" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding MemoryUsageDisplay}" 
+                                   FontSize="10" 
+                                   Foreground="Cyan"
+                                   VerticalAlignment="Center"
+                                   Margin="4,0,0,0"/>
+                        <ProgressBar Value="{Binding MemoryUsagePercent}" 
+                                     Width="60" 
+                                     Height="4"
+                                     Minimum="0"
+                                     Maximum="100"
+                                     VerticalAlignment="Center"
+                                     Margin="8,0,0,0"/>
+                    </StackPanel>
+
+                    <!-- Pause/Resume -->
+                    <Button Command="{Binding TogglePauseCommand}"
+                            Style="{StaticResource MaterialDesignIconButton}"
+                            ToolTip="Pause/Resume Stream"
+                            Width="32" Height="32"
+                            Margin="4">
+                        <materialDesign:PackIcon Width="20" Height="20">
+                            <materialDesign:PackIcon.Style>
+                                <Style TargetType="materialDesign:PackIcon">
+                                    <Setter Property="Kind" Value="Pause"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsPaused}" Value="True">
+                                            <Setter Property="Kind" Value="Play"/>
+                                            <Setter Property="Foreground" Value="LimeGreen"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </materialDesign:PackIcon.Style>
+                        </materialDesign:PackIcon>
+                    </Button>
+
+                    <!-- Export -->
+                    <Button Command="{Binding ExportLogsJsonlCommand}"
+                            Style="{StaticResource MaterialDesignIconButton}"
+                            ToolTip="Export to JSONL"
+                            Width="32" Height="32"
+                            Margin="4">
+                        <materialDesign:PackIcon Kind="Download" Width="20" Height="20"/>
+                    </Button>
+
+                    <!-- Clear -->
+                    <Button Command="{Binding ClearLogsCommand}"
+                            Style="{StaticResource MaterialDesignIconButton}"
+                            ToolTip="Clear Logs"
+                            Width="32" Height="32"
+                            Margin="4">
+                        <materialDesign:PackIcon Kind="DeleteSweep" Width="20" Height="20"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Log List (Virtualized for performance) -->
+        <ListBox Grid.Row="1"
+                 ItemsSource="{Binding FilteredLogs}"
+                 Background="#1E1E1E"
+                 BorderThickness="0"
+                 VirtualizingPanel.IsVirtualizing="True"
+                 VirtualizingPanel.VirtualizationMode="Recycling"
+                 ScrollViewer.CanContentScroll="True"
+                 FontFamily="Consolas"
+                 FontSize="11">
+
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                    <Setter Property="Padding" Value="4,2"/>
+                    <Setter Property="Margin" Value="0"/>
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                    <Style.Triggers>
+                        <!-- Highlight ERROR rows -->
+                        <DataTrigger Binding="{Binding Level}" Value="ERROR">
+                            <Setter Property="Background" Value="#3D0000"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Level}" Value="CRITICAL">
+                            <Setter Property="Background" Value="#5C0000"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Level}" Value="WARN">
+                            <Setter Property="Background" Value="#3D3D00"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ListBox.ItemContainerStyle>
+
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="120"/> <!-- Timestamp -->
+                            <ColumnDefinition Width="60"/>  <!-- Level -->
+                            <ColumnDefinition Width="120"/> <!-- Agent -->
+                            <ColumnDefinition Width="80"/>  <!-- Topic -->
+                            <ColumnDefinition Width="*"/>   <!-- Message -->
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Timestamp -->
+                        <TextBlock Grid.Column="0" 
+                                   Text="{Binding Timestamp, StringFormat='HH:mm:ss.fff'}" 
+                                   Foreground="Gray"
+                                   Margin="4,0"/>
+
+                        <!-- Level -->
+                        <TextBlock Grid.Column="1" 
+                                   Text="{Binding Level}" 
+                                   Foreground="{Binding LevelColor}"
+                                   FontWeight="SemiBold"
+                                   Margin="4,0"/>
+
+                        <!-- Agent -->
+                        <TextBlock Grid.Column="2" 
+                                   Text="{Binding AgentId}" 
+                                   Foreground="Cyan"
+                                   Margin="4,0"/>
+
+                        <!-- Topic -->
+                        <TextBlock Grid.Column="3" 
+                                   Text="{Binding Topic}" 
+                                   Foreground="LightGray"
+                                   Margin="4,0"/>
+
+                        <!-- Message -->
+                        <TextBlock Grid.Column="4" 
+                                   Text="{Binding Message}" 
+                                   Foreground="White"
+                                   TextTrimming="CharacterEllipsis"
+                                   Margin="4,0"
+                                   ToolTip="{Binding Message}"/>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </Grid>
+</UserControl>

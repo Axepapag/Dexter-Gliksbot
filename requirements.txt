@@ -14,3 +14,8 @@ pywinauto==0.6.8
 sqlite-utils==3.36
 celery==5.3.6; python_version >= '3.10'  # Optional
 redis==5.0.3; python_version >= '3.10'   # Optional
+
+# Knowledge Graph dependencies (Todo #10)
+networkx==3.2.1              # Graph algorithms (PageRank, shortest path)
+sentence-transformers==2.5.1  # Semantic embeddings (all-MiniLM-L6-v2)
+numpy==1.26.4                # Array operations for embeddings

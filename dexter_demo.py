@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Example script demonstrating how to use Dexter orchestrator.
+Example script demonstrating how to use Dexter orchestrator with TripleBusSystem.
 """
 
 import asyncio
@@ -10,7 +10,7 @@ from pathlib import Path
 # Add the source directory to the path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from dexter_autonomy.core.event_bus import EventBus
+from dexter_autonomy.core.triple_bus import TripleBusSystem
 from dexter_autonomy.core.policy_overlay import CompositeDenyPolicy
 from dexter_autonomy.brain.memory import BrainDB
 from dexter_autonomy.agents.action_executor import ActionExecutor
@@ -21,10 +21,8 @@ from dexter_autonomy.agents.dexter_orchestrator import DexterOrchestrator
 
 
 async def main():
-    """Example of using Dexter orchestrator."""
-    # Create the event bus
-    bus = EventBus()
-    
+    """Example of using Dexter orchestrator with TripleBusSystem."""
+    # Create the triple bus system
     # Create a simple policy
     policy = CompositeDenyPolicy({
         "process": {
@@ -38,14 +36,17 @@ async def main():
         }
     })
     
+    # Create triple bus system with policy
+    buses = TripleBusSystem(policy=policy)
+    
     # Create brain database
     brain = BrainDB(":memory:")
     
-    # Create agents
-    executor = ActionExecutor(bus, policy, None)
+    # Create agents (all use TripleBusSystem now)
+    executor = ActionExecutor(buses, policy, None)
     aum = AUM("test-model", "http://localhost:11434", 0.1)
     bsm = BSM("test-model", "http://localhost:11434", brain, 0.1)
-    chatdock = ChatDockAgent(bus, policy, executor, aum, bsm, None)
+    chatdock = ChatDockAgent(buses, policy, executor, aum, bsm, None)
     
     # Configuration for Dexter
     config = {
@@ -62,7 +63,7 @@ async def main():
     
     # Create Dexter orchestrator
     dexter = DexterOrchestrator(
-        bus=bus,
+        buses=buses,
         policy=policy,
         brain=brain,
         executor=executor,
@@ -72,8 +73,8 @@ async def main():
         config=config
     )
     
-    # Start the event bus
-    await bus.start()
+    # Start the triple bus system
+    await buses.start()
     
     # Example 1: Direct communication with Dexter
     print("=== Direct Communication with Dexter ===")
@@ -133,11 +134,11 @@ async def main():
     if "excel-data-entry-001" in dexter.active_operations:
         print(f"Operation status: {dexter.active_operations['excel-data-entry-001']['status']}")
     
-    # Stop the event bus
-    await bus.stop()
+    # Stop the triple bus system
+    await buses.stop()
     
     print("\n=== Demo Complete ===")
-    print("Dexter orchestrator successfully demonstrated all core features!")
+    print("Dexter orchestrator successfully demonstrated all core features with TripleBusSystem!")
 
 
 if __name__ == "__main__":

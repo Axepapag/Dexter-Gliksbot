@@ -1,0 +1,29 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "cockpit", "cockpit", "{96D733DE-5DC4-C807-DB3C-97AE75BE004D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DexterCockpit", "cockpit\DexterCockpit\DexterCockpit.csproj", "{ADEBDFF5-2477-C739-A2A0-A2D4151F7BAB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ADEBDFF5-2477-C739-A2A0-A2D4151F7BAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ADEBDFF5-2477-C739-A2A0-A2D4151F7BAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ADEBDFF5-2477-C739-A2A0-A2D4151F7BAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ADEBDFF5-2477-C739-A2A0-A2D4151F7BAB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{ADEBDFF5-2477-C739-A2A0-A2D4151F7BAB} = {96D733DE-5DC4-C807-DB3C-97AE75BE004D}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A3465AFF-4B0C-4304-98FB-827F9BA15F49}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,88 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# IDEs
+.vscode/
+.vs/
+.idea/
+*.swp
+*.swo
+*~
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+
+# Dexter-specific
+data/*.db
+data/*.db-journal
+data/*.db-shm
+data/*.db-wal
+data/brain.db*
+data/backups/
+data/logs/
+*.log
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Redis
+dump.rdb
+
+# Celery
+celerybeat-schedule
+celerybeat-schedule.*
+
+# OS
+.DS_Store
+Thumbs.db
+*.tmp
+*.bak
+
+# Legacy launchers (keep start.py only)
+Launch-*.bat
+Start-*.ps1
+
+# Temporary test scripts (use tests/ directory)
+test_*.py
+check_*.py
+!tests/test_*.py
+
+# Documentation builds
+docs/_build/
+docs/.doctrees/
+
+# Memory bank (track in git but ignore large files)
+memory-bank/*.jsonl
+memory-bank/*.db

@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import asyncio
 import json
+import re
 from typing import Any, Dict, List, Optional
 from pathlib import Path
 
 import yaml
 
-from ..core.event_bus import EventBus, Topic
+from ..core.triple_bus import TripleBusSystem, MainTopic, CollabTopic, PrivateTopic
 from ..core.policy_overlay import CompositeDenyPolicy
 from ..brain.memory import BrainDB
 from ..agents.action_executor import ActionExecutor
@@ -37,7 +38,7 @@ class DexterOrchestrator:
     
     def __init__(
         self,
-        bus: EventBus,
+        buses: TripleBusSystem,
         policy: CompositeDenyPolicy,
         brain: BrainDB,
         executor: ActionExecutor,
@@ -46,7 +47,7 @@ class DexterOrchestrator:
         chatdock: ChatDockAgent,
         config: Dict[str, Any]
     ) -> None:
-        self.bus = bus
+        self.buses = buses
         self.policy = policy
         self.brain = brain
         self.executor = executor
@@ -73,10 +74,13 @@ class DexterOrchestrator:
         # Conversation history
         self.conversation_history: List[Dict[str, str]] = []
         
-        # Register for relevant events
-        self.bus.subscribe(Topic.INTENT, self.handle_intent)
-        self.bus.subscribe(Topic.EFFECT, self.handle_effect)
-        self.bus.subscribe(Topic.SYSTEM, self.handle_system_event)
+        # Register for relevant events on MAIN bus
+        # Dexter monitors ALL buses, but primarily interacts on MAIN
+        self.buses.main.subscribe(MainTopic.INTENT, self.handle_intent)
+        self.buses.main.subscribe(MainTopic.EFFECT, self.handle_effect)
+        # Keep SYSTEM subscription for backward compatibility (consider migrating to CollabTopic)
+        # For now, we'll handle SYSTEM on main bus as well
+        self.buses.main.subscribe(MainTopic.TRACE, self.handle_system_event)  # Map SYSTEM to TRACE temporarily
 
     async def _invoke_ollama_chat(
         self,
@@ -100,6 +104,122 @@ class DexterOrchestrator:
                 options=merged_options,
             ),
         )
+    
+    def _extract_actions(self, text: str) -> List[Dict[str, Any]]:
+        """
+        Extract structured actions from text response.
+        Merged AUM functionality - Dexter can now extract actions in single LLM call.
+        
+        Looks for JSON arrays in the response containing action objects with:
+        - kind: type, hotkey, click, ocr
+        - args: action-specific arguments
+        - rationale: reason for the action
+        
+        Falls back to deterministic parsing if LLM doesn't provide structured actions.
+        """
+        # Try to find JSON array in the text
+        match = re.search(r'\[.*?\]', text, re.DOTALL)
+        if match:
+            try:
+                actions = json.loads(match.group(0))
+                if isinstance(actions, list):
+                    # Validate structure
+                    valid_actions = []
+                    for action in actions:
+                        if isinstance(action, dict) and 'kind' in action and 'args' in action:
+                            valid_actions.append(action)
+                    if valid_actions:
+                        return valid_actions
+            except (json.JSONDecodeError, ValueError):
+                pass
+        
+        # Fallback: deterministic parsing
+        return self._parse_actions_fallback(text)
+    
+    def _parse_actions_fallback(self, text: str) -> List[Dict[str, Any]]:
+        """
+        Deterministic fallback for action extraction.
+        Looks for common patterns in text to infer actions.
+        """
+        actions = []
+        text_lower = text.lower()
+        
+        # Pattern: "click at (x, y)" or "click x,y" or "click (x,y)"
+        click_patterns = [
+            r'click\s+at\s*\(?\s*(\d+)\s*,\s*(\d+)\s*\)?',
+            r'click\s+\(?\s*(\d+)\s*,\s*(\d+)\s*\)?',
+        ]
+        for pattern in click_patterns:
+            matches = re.finditer(pattern, text_lower)
+            for match in matches:
+                actions.append({
+                    "kind": "click",
+                    "args": {"x": int(match.group(1)), "y": int(match.group(2))},
+                    "rationale": "Extracted from text instruction"
+                })
+        
+        # Pattern: "press CTRL+S" or "hotkey CTRL+S" (prioritize compound keys)
+        hotkey_patterns = [
+            r'(?:press|hotkey)\s+([A-Z]+(?:\+[A-Z0-9]+)+)',  # Compound keys (CTRL+S, ALT+F4)
+        ]
+        for pattern in hotkey_patterns:
+            matches = re.finditer(pattern, text, re.IGNORECASE)
+            for match in matches:
+                chord = match.group(1).upper()
+                actions.append({
+                    "kind": "hotkey",
+                    "args": {"chord": chord},
+                    "rationale": "Extracted from text instruction"
+                })
+        
+        # Pattern: "type 'text'" or 'type "text"'
+        type_patterns = [
+            r'type\s+["\']([^"\']+)["\']',
+            r'enter\s+["\']([^"\']+)["\']',
+            r'input\s+["\']([^"\']+)["\']',
+        ]
+        for pattern in type_patterns:
+            matches = re.finditer(pattern, text_lower)
+            for match in matches:
+                actions.append({
+                    "kind": "type",
+                    "args": {"text": match.group(1)},
+                    "rationale": "Extracted from text instruction"
+                })
+        
+        # Pattern: "ocr" or "capture screen"
+        if re.search(r'\b(ocr|capture\s+screen|screenshot)\b', text_lower):
+            actions.append({
+                "kind": "ocr",
+                "args": {},
+                "rationale": "Extracted from text instruction"
+            })
+        
+        return actions
+    
+    def _build_action_extraction_prompt(self) -> str:
+        """
+        Build system prompt that includes action extraction instructions.
+        This enables Dexter to converse AND extract actions in single call.
+        """
+        base_prompt = self.dexter_slot.get("system_prompt", "")
+        
+        action_schema = """
+When you need to execute UI actions, include them in your response as a JSON array.
+
+SUPPORTED ACTIONS:
+1. Type text: {"kind": "type", "args": {"text": "hello world"}, "rationale": "entering greeting"}
+2. Hotkey: {"kind": "hotkey", "args": {"chord": "CTRL+S"}, "rationale": "saving file"}
+3. Click: {"kind": "click", "args": {"x": 100, "y": 200}, "rationale": "clicking submit button"}
+4. OCR: {"kind": "ocr", "args": {}, "rationale": "capturing screen text"}
+
+Example response with actions:
+"I'll save the file now. [{'kind': 'hotkey', 'args': {'chord': 'CTRL+S'}, 'rationale': 'saving file'}]"
+
+Include actions ONLY when actually executing UI operations. Regular conversation doesn't need actions.
+"""
+        
+        return base_prompt + "\n\n" + action_schema
 
     def _resolve_participants(self) -> List[str]:
         participants = list(self.active_agents.keys())
@@ -124,9 +244,16 @@ class DexterOrchestrator:
         return "plan" in text and "before" in text
 
     async def _publish_council_event(self, payload: Dict[str, Any]) -> None:
+        """Publish collaboration event to COLLAB bus"""
         enriched = dict(payload)
         enriched.setdefault("source", "dexter")
-        await self.bus.publish(Topic.COUNCIL, enriched)
+        # COUNCIL events map to COLLAB bus (collaboration)
+        # Determine appropriate topic based on event type
+        event_type = enriched.get("event", "observation")
+        if event_type == "agent_message":
+            await self.buses.collab.publish(CollabTopic.OBSERVATION, enriched)
+        else:
+            await self.buses.collab.publish(CollabTopic.OBSERVATION, enriched)
 
     async def _generate_collaboration_plan(
         self,
@@ -201,15 +328,15 @@ class DexterOrchestrator:
         # For all other intents, validate against deny list first
         validation_result = await self.validate_intent(intent)
         if not validation_result["allowed"]:
-            # Log the denied intent
-            await self.bus.publish(Topic.SYSTEM, {
+            # Log the denied intent to MAIN bus (TRACE for logging)
+            await self.buses.main.publish(MainTopic.TRACE, {
                 "event": "intent_denied",
                 "intent": intent,
                 "reason": validation_result["reason"]
             })
             
-            # Notify the user
-            await self.bus.publish(Topic.EFFECT, {
+            # Notify the user via EFFECT
+            await self.buses.main.publish(MainTopic.EFFECT, {
                 "status": "denied",
                 "detail": {
                     "reason": validation_result["reason"],
@@ -308,7 +435,8 @@ class DexterOrchestrator:
                 "collaboration_plan": plan,
             }
 
-        system_prompt = self.dexter_slot.get("system_prompt", "")
+        # Use enhanced system prompt with action extraction capability
+        system_prompt = self._build_action_extraction_prompt()
         messages = [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_message},
@@ -317,10 +445,53 @@ class DexterOrchestrator:
         try:
             response = await self._invoke_ollama_chat(messages)
             self.conversation_history.append({"role": "assistant", "content": response})
+            
+            # Extract actions from response (merged AUM functionality)
+            actions = self._extract_actions(response)
+            actions_count = len(actions)
+            
+            # If actions were extracted, validate and execute them
+            if actions:
+                validated_actions = []
+                for action in actions:
+                    validation = await self.validate_intent({
+                        "kind": action["kind"],
+                        "args": action["args"]
+                    })
+                    if validation["allowed"]:
+                        validated_actions.append(action)
+                    else:
+                        # Log denied action to MAIN bus (TRACE for logging)
+                        await self.buses.main.publish(MainTopic.TRACE, {
+                            "event": "action_denied",
+                            "action": action,
+                            "reason": validation["reason"]
+                        })
+                
+                # Execute validated actions
+                execution_results = []
+                if validated_actions:
+                    for action in validated_actions:
+                        result = await self.executor.handle_intent({
+                            "kind": action["kind"],
+                            "args": action["args"]
+                        })
+                        execution_results.append(result)
+                
+                return {
+                    "status": "success",
+                    "response": response,
+                    "target": "user",
+                    "actions_extracted": len(actions),
+                    "actions_executed": len(validated_actions),
+                    "execution_results": execution_results
+                }
+            
             return {
                 "status": "success",
                 "response": response,
                 "target": "user",
+                "actions_extracted": actions_count
             }
         except Exception as e:
             return {
@@ -479,7 +650,7 @@ class DexterOrchestrator:
                     "detail": {"reason": "No text provided for nl_command"},
                     "intent": intent,
                 }
-                await self.bus.publish(Topic.EFFECT, payload)
+                await self.buses.main.publish(MainTopic.EFFECT, payload)
                 return payload
         else:
             # For other intents, try to extract actions using AUM
@@ -494,7 +665,7 @@ class DexterOrchestrator:
                     "detail": {"reason": f"unsupported intent kind '{intent_kind}'"},
                     "intent": intent,
                 }
-                await self.bus.publish(Topic.EFFECT, payload)
+                await self.buses.main.publish(MainTopic.EFFECT, payload)
                 return payload
     
     async def update_brain_with_effect(self, effect: Dict[str, Any]) -> None:
@@ -511,8 +682,8 @@ class DexterOrchestrator:
             # Store in brain
             await self.brain.store_effect(summary)
         except Exception as e:
-            # Log error but don't fail the operation
-            await self.bus.publish(Topic.SYSTEM, {
+            # Log error but don't fail the operation (use TRACE for logging)
+            await self.buses.main.publish(MainTopic.TRACE, {
                 "event": "brain_update_error",
                 "error": str(e)
             })
@@ -554,7 +725,8 @@ CONVERSATION HISTORY:
     
     async def register_agent(self, agent_id: str, capabilities: List[str]) -> None:
         """Register a new agent with Dexter."""
-        await self.bus.publish(Topic.SYSTEM, {
+        # System events go to TRACE topic on MAIN bus
+        await self.buses.main.publish(MainTopic.TRACE, {
             "event": "agent_registered",
             "agent_id": agent_id,
             "capabilities": capabilities
@@ -562,14 +734,14 @@ CONVERSATION HISTORY:
     
     async def deregister_agent(self, agent_id: str) -> None:
         """Deregister an agent from Dexter."""
-        await self.bus.publish(Topic.SYSTEM, {
+        await self.buses.main.publish(MainTopic.TRACE, {
             "event": "agent_deregistered",
             "agent_id": agent_id
         })
     
     async def start_operation(self, operation_id: str, agent_id: str, description: str) -> None:
         """Start tracking a new operation."""
-        await self.bus.publish(Topic.SYSTEM, {
+        await self.buses.main.publish(MainTopic.TRACE, {
             "event": "operation_started",
             "operation_id": operation_id,
             "agent_id": agent_id,
@@ -578,7 +750,7 @@ CONVERSATION HISTORY:
     
     async def complete_operation(self, operation_id: str) -> None:
         """Mark an operation as completed."""
-        await self.bus.publish(Topic.SYSTEM, {
+        await self.buses.main.publish(MainTopic.TRACE, {
             "event": "operation_completed",
             "operation_id": operation_id
         })

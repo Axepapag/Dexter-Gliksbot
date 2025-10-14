@@ -5,7 +5,7 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from PIL import ImageGrab
 
-from ..core.event_bus import EventBus, Topic
+from ..core.triple_bus import TripleBusSystem, MainTopic
 from ..core.policy_overlay import CompositeDenyPolicy
 from ..tools.windows.automation import click as do_click
 from ..tools.windows.automation import hotkey as do_hotkey
@@ -16,8 +16,8 @@ from ..tools.windows.ocr import ocr_hwnd
 class ActionExecutor:
     """Executes low-level automation actions with policy guardrails."""
 
-    def __init__(self, bus: EventBus, policy: CompositeDenyPolicy, tesseract_path: str | None) -> None:
-        self.bus = bus
+    def __init__(self, buses: TripleBusSystem, policy: CompositeDenyPolicy, tesseract_path: str | None) -> None:
+        self.buses = buses
         self.policy = policy
         self.tesseract_path = tesseract_path
 
@@ -32,7 +32,7 @@ class ActionExecutor:
         detail = self._result_to_detail(result)
 
         payload = {"status": result["status"], "detail": detail, "intent": intent}
-        await self.bus.publish(Topic.EFFECT, payload)
+        await self.buses.main.publish(MainTopic.EFFECT, payload)
         return payload
 
     async def run_actions(
@@ -62,7 +62,7 @@ class ActionExecutor:
             detail.update(context)
 
         payload = {"status": overall, "detail": detail, "intent": origin_intent}
-        await self.bus.publish(Topic.EFFECT, payload)
+        await self.buses.main.publish(MainTopic.EFFECT, payload)
         return payload
 
     async def _execute_action(self, action: Dict[str, Any], origin_intent: Dict[str, Any]) -> Dict[str, Any]:

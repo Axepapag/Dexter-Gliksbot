@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from ..core.event_bus import EventBus, Topic
+from ..core.triple_bus import TripleBusSystem, MainTopic
 from ..core.policy_overlay import CompositeDenyPolicy
 from ..tools.windows.ocr import ocr_hwnd
 from .action_executor import ActionExecutor
@@ -13,14 +13,14 @@ from .bsm import BSM
 class ChatDockAgent:
     def __init__(
         self,
-        bus: EventBus,
+        buses: TripleBusSystem,
         policy: CompositeDenyPolicy,
         executor: ActionExecutor,
         aum: AUM,
         bsm: BSM,
         tesseract_path: str | None,
     ) -> None:
-        self.bus = bus
+        self.buses = buses
         self.policy = policy
         self.executor = executor
         self.aum = aum
@@ -34,7 +34,7 @@ class ChatDockAgent:
                 "intent": intent,
                 "detail": {"reason": "ChatDock only handles chatdock_run intents."},
             }
-            await self.bus.publish(Topic.EFFECT, payload)
+            await self.buses.main.publish(MainTopic.EFFECT, payload)
             return payload
 
         hwnd = int(intent.get("args", {}).get("hwnd", 0) or 0)
@@ -47,7 +47,7 @@ class ChatDockAgent:
                 "intent": intent,
                 "detail": {"results": [], "error": str(exc)},
             }
-            await self.bus.publish(Topic.EFFECT, payload)
+            await self.buses.main.publish(MainTopic.EFFECT, payload)
             return payload
 
         actions = self.aum.extract(text) or []

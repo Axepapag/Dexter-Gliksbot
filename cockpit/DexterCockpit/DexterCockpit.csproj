@@ -1,0 +1,57 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <RootNamespace>DexterCockpit</RootNamespace>
+    <ApplicationIcon>Assets\dexter.ico</ApplicationIcon>
+    <Company>Dexter Autonomy</Company>
+    <Product>Dexter Mission Control</Product>
+    <Version>0.1.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- AvalonDock for docking UI -->
+    <PackageReference Include="AvalonDock" Version="4.72.0" />
+    
+    <!-- LiveCharts for real-time charts -->
+    <PackageReference Include="LiveCharts.Wpf" Version="0.9.7" />
+    
+    <!-- Material Design for modern UI -->
+    <PackageReference Include="MaterialDesignThemes" Version="4.9.0" />
+    <PackageReference Include="MaterialDesignColors" Version="2.1.4" />
+    
+    <!-- JSON handling -->
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    
+    <!-- WebSocket client for backend -->
+    <PackageReference Include="WebSocketSharp-netstandard" Version="1.0.1" />
+    
+    <!-- MVVM toolkit -->
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+    
+    <!-- Dependency injection -->
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
+    
+    <!-- Speech synthesis and recognition -->
+    <PackageReference Include="System.Speech" Version="8.0.0" />
+    
+    <!-- HTTP client -->
+    <PackageReference Include="System.Net.Http.Json" Version="8.0.0" />
+    
+    <!-- YAML parsing for mission editor -->
+    <PackageReference Include="YamlDotNet" Version="13.7.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Assets\" />
+    <Folder Include="Themes\" />
+  </ItemGroup>
+
+</Project>
