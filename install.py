@@ -257,6 +257,56 @@ def check_ollama() -> Dict[str, any]:
         return {"installed": False, "running": False, "models": []}
 
 
+def check_dotnet_sdk() -> Dict[str, any]:
+    """Check if .NET 8.0 SDK is installed (required for WPF Cockpit)."""
+    print_info("Checking .NET 8.0 SDK (required for WPF Cockpit)...")
+    
+    returncode, stdout, stderr = run_command(["dotnet", "--version"], capture=True, check=False)
+    
+    if returncode == 0:
+        version = stdout.strip()
+        major_version = version.split('.')[0] if version else "0"
+        
+        if major_version == "8":
+            print_success(f".NET SDK {version} is installed")
+            
+            # Check if cockpit can be built
+            cockpit_path = Path(__file__).parent / "cockpit" / "DexterCockpit" / "DexterCockpit.csproj"
+            if cockpit_path.exists():
+                print_info("  Cockpit project found, checking build status...")
+                returncode, _, _ = run_command(
+                    ["dotnet", "restore", str(cockpit_path.parent)],
+                    capture=True,
+                    check=False
+                )
+                if returncode == 0:
+                    print_success("  Cockpit dependencies restored successfully")
+                    return {"installed": True, "version": version, "cockpit_ready": True}
+                else:
+                    print_warning("  Could not restore cockpit dependencies")
+                    return {"installed": True, "version": version, "cockpit_ready": False}
+            
+            return {"installed": True, "version": version, "cockpit_ready": False}
+        else:
+            print_warning(f".NET SDK {version} found, but version 8.0 is required for WPF Cockpit")
+            print_info("  Download: https://dotnet.microsoft.com/download/dotnet/8.0")
+            return {"installed": False, "version": version, "cockpit_ready": False}
+    else:
+        print_warning(".NET SDK not found (required for WPF Cockpit)")
+        
+        system = platform.system()
+        if system == "Windows":
+            print_info("  Install: https://dotnet.microsoft.com/download/dotnet/8.0")
+            print_info("  Or use: winget install Microsoft.DotNet.SDK.8")
+        elif system == "Linux":
+            print_info("  Install: https://dotnet.microsoft.com/download/dotnet/8.0")
+        elif system == "Darwin":
+            print_info("  Install: https://dotnet.microsoft.com/download/dotnet/8.0")
+            print_info("  Or use: brew install dotnet@8")
+        
+        return {"installed": False, "version": None, "cockpit_ready": False}
+
+
 def create_env_file(interactive=True) -> bool:
     """Create .env file from template."""
     print_info("Setting up environment configuration...")
@@ -405,8 +455,14 @@ def print_summary(results: Dict[str, any]):
     print(f"\n{Colors.BOLD}Next Steps:{Colors.ENDC}")
     print("  1. Edit .env to add your API keys (optional)")
     print("  2. Start the server: python start.py --port 8765")
-    print("  3. Test WebSocket: python scripts/test_websocket_client.py")
-    print("  4. View documentation: See README-WEBSOCKET.md")
+    
+    if results['dotnet']['cockpit_ready']:
+        print(f"  3. Launch Cockpit UI: {Colors.OKGREEN}Launch-Dexter-Cockpit.bat{Colors.ENDC} (double-click)")
+        print("  4. Test WebSocket: python scripts/test_websocket_client.py")
+    else:
+        print("  3. Test WebSocket: python scripts/test_websocket_client.py")
+    
+    print("  5. View documentation: See README-WEBSOCKET.md")
     
     if not results['ollama']['installed']:
         print(f"\n{Colors.WARNING}  Optional: Install Ollama for local LLM support{Colors.ENDC}")
@@ -415,6 +471,11 @@ def print_summary(results: Dict[str, any]):
     
     if not results['redis']['running']:
         print(f"{Colors.WARNING}  Optional: Start Redis for Celery worker support{Colors.ENDC}")
+    
+    if not results['dotnet']['installed']:
+        print(f"{Colors.WARNING}  Optional: Install .NET 8.0 SDK to run WPF Cockpit UI{Colors.ENDC}")
+    elif not results['dotnet']['cockpit_ready']:
+        print(f"{Colors.WARNING}  Cockpit UI available but needs dependency restore{Colors.ENDC}")
 
 
 def main():
@@ -437,6 +498,7 @@ def main():
         "tesseract": {"installed": False},
         "redis": {"installed": False, "running": False},
         "ollama": {"installed": False, "running": False, "models": []},
+        "dotnet": {"installed": False, "version": None, "cockpit_ready": False},
         "health_checks": {}
     }
     
@@ -468,6 +530,7 @@ def main():
         results["tesseract"] = check_tesseract()
         results["redis"] = check_redis()
         results["ollama"] = check_ollama()
+        results["dotnet"] = check_dotnet_sdk()
     
     # Environment setup
     if not args.skip_env:

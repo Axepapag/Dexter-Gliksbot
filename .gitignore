@@ -70,10 +70,6 @@ Thumbs.db
 *.tmp
 *.bak
 
-# Legacy launchers (keep start.py only)
-Launch-*.bat
-Start-*.ps1
-
 # Temporary test scripts (use tests/ directory)
 test_*.py
 check_*.py
