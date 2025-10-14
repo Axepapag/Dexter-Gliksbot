@@ -34,6 +34,7 @@ from fastapi.responses import JSONResponse
 from dexter_autonomy.core.triple_bus import TripleBusSystem, get_global_triple_bus
 from dexter_autonomy.api.websocket_manager import WebSocketManager
 from dexter_autonomy.api.connection_manager import ClientSubscription
+from dexter_autonomy.api.config_routes import router as config_router
 
 logger = logging.getLogger(__name__)
 
@@ -104,6 +105,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include configuration routes
+app.include_router(config_router)
 
 
 # ============================================================================

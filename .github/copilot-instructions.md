@@ -466,20 +466,36 @@ agents:
 **No "Modes"**: System always runs with workers. If Redis unavailable, fail-fast with actionable error.
 
 ### **5. WPF Cockpit Mission Control** (`cockpit/DexterCockpit`)
-**Status**: ✅ Core implementation complete - MVVM architecture with AvalonDock
+**Status**: ✅ **PRODUCTION READY** - Full implementation + build fixes complete (Oct 14, 2025)
+
+**Build Status**: ✅ 0 Errors, 2 Warnings (LiveCharts compatibility - safe to ignore)
 
 **Completed Components**:
 - ✅ Full MVVM architecture (Models, ViewModels, Views, Services)
-- ✅ MainWindow with AvalonDock docking system
+- ✅ MainWindow with AvalonDock docking system (**Dirkster.AvalonDock 4.72.1** for .NET 8.0)
 - ✅ Agent Roster (left sidebar, detachable) with quick actions
 - ✅ Chat View with broadcast mode, TTS, microphone support
 - ✅ Logs View with 10GB RAM budget and intelligent eviction
-- ✅ Performance View with real-time charts (LiveCharts)
+- ✅ Performance View with real-time charts (LiveCharts 0.9.7)
 - ✅ WebSocket client (5 channels: logs, agents, missions, performance, config)
 - ✅ REST API client for agents/missions/logs/config endpoints
 - ✅ Dependency injection with Microsoft.Extensions.DependencyInjection
 - ✅ Material Design dark theme optimized for 24/7 operations
 - ✅ All views fully detachable and resizable
+- ✅ **4 clickable launchers** (batch + PowerShell, backend-only + full system)
+- ✅ **Integrated into installer** with .NET 8.0 SDK check
+- ✅ **All XAML/package issues resolved** (see BUILD-STATUS.md)
+
+**Recent Fixes** (Oct 14, 2025):
+1. ✅ Package: `AvalonDock` → `Dirkster.AvalonDock 4.72.1` (commit 083a7c9)
+2. ✅ Namespace: Updated XAML to `https://github.com/Dirkster99/AvalonDock` (commit 469ef31)
+3. ✅ Structure: Fixed LayoutRoot to have single child (MC3089 error resolved, commit 28d3bb9)
+
+**Documentation**:
+- ✅ [BUILD-STATUS.md](BUILD-STATUS.md) - Current build status and verification
+- ✅ [COMPLETE-BUILD-FIX-SUMMARY.md](COMPLETE-BUILD-FIX-SUMMARY.md) - Full fix timeline
+- ✅ [LAUNCHERS.md](LAUNCHERS.md) - Launcher usage guide
+- ✅ [COCKPIT-INTEGRATION.md](COCKPIT-INTEGRATION.md) - Integration summary
 
 **Architecture Overview** (AvalonDock Mission Control):
 
@@ -550,15 +566,27 @@ agents:
 - **LTM (SQLite)**: Persistent storage, never deleted, searchable via FTS + semantic embeddings
 - **Learning**: All interactions feed knowledge graph + neural patterns
 
-#### **Technical Stack**
+#### **Technical Stack** (.NET 8.0)
 ```xml
-<PackageReference Include="AvalonDock" Version="4.72.0" />
+<!-- AvalonDock: Dirkster fork for .NET 8.0 support -->
+<PackageReference Include="Dirkster.AvalonDock" Version="4.72.1" />
+<PackageReference Include="Dirkster.AvalonDock.Themes.VS2013" Version="4.72.1" />
+
+<!-- LiveCharts: 0.9.7 works perfectly on .NET 8.0 (2 warnings safe to ignore) -->
 <PackageReference Include="LiveCharts.Wpf" Version="0.9.7" />
+
+<!-- Material Design + other packages -->
 <PackageReference Include="MaterialDesignThemes" Version="4.9.0" />
 <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-<PackageReference Include="WebSocketSharp" Version="1.0.3-rc11" />
+<PackageReference Include="WebSocketSharp-netstandard" Version="1.0.1" />
 <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
 ```
+
+**Important Notes**:
+- ✅ **AvalonDock**: Must use `Dirkster.AvalonDock` (not old `AvalonDock` package)
+- ✅ **LiveCharts**: 0.9.7 generates NU1701 warnings (safe - .NET Framework lib works on .NET 8.0)
+- ✅ **XAML Namespace**: Use `xmlns:xcad="https://github.com/Dirkster99/AvalonDock"`
+- ✅ **LayoutRoot**: Can only have ONE direct child (wrap everything in single LayoutPanel)
 
 #### **WebSocket Channels**
 ```

@@ -14,6 +14,7 @@ pywinauto==0.6.8
 sqlite-utils==3.36
 celery==5.3.6; python_version >= '3.10'  # Optional
 redis==5.0.3; python_version >= '3.10'   # Optional
+watchdog==4.0.0              # File system watcher for config hot-reload
 
 # Knowledge Graph dependencies (Todo #10)
 networkx==3.2.1              # Graph algorithms (PageRank, shortest path)
