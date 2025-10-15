@@ -18,6 +18,21 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
+        // Global exception handlers
+        AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
+        {
+            var ex = args.ExceptionObject as Exception;
+            MessageBox.Show($"Unhandled Exception:\n\n{ex?.Message}\n\n{ex?.StackTrace}", 
+                "Fatal Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        };
+
+        DispatcherUnhandledException += (sender, args) =>
+        {
+            MessageBox.Show($"UI Exception:\n\n{args.Exception.Message}\n\n{args.Exception.StackTrace}", 
+                "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            args.Handled = true;
+        };
+
         // Setup Dependency Injection
         var services = new ServiceCollection();
 
