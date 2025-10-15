@@ -7,6 +7,7 @@ import time
 from typing import Any, Dict, List, Optional
 
 from ..brain.memory import BrainDB
+from ..brain.time_machine import TimeMachine, TimelineEvent, EventSeverity, EventCategory
 from ..core.triple_bus import (
     CollabTopic,
     MainTopic,
@@ -63,6 +64,7 @@ class BSM:
         context_prompt: str | None = None,
         client_options: Optional[Dict[str, object]] = None,
         call_options: Optional[Dict[str, object]] = None,
+        time_machine: Optional[TimeMachine] = None,
     ) -> None:
         self.buses = buses
         self.model = model
@@ -78,6 +80,9 @@ class BSM:
             if model
             else None
         )
+        
+        # Time Machine integration for event logging
+        self.time_machine = time_machine
         
         # Tracking
         self._observation_count = 0
@@ -190,6 +195,7 @@ class BSM:
         2. Store: Add to brain (STM/LTM)
         3. Learn: Extract entities, relations, patterns
         4. Provide: Determine and broadcast/send relevant context
+        5. Log: Record to timeline (if Time Machine enabled)
         """
         self._observation_count += 1
         
@@ -212,6 +218,10 @@ class BSM:
             content,
             meta
         )
+        
+        # Log to timeline if Time Machine is enabled
+        if self.time_machine:
+            await self._log_to_timeline(msg, bus, meta)
         
         # Determine if context should be provided based on this observation
         await self._provide_context_if_needed(msg, bus)
@@ -457,6 +467,59 @@ class BSM:
         memory_meta = {"tags": tags, **meta}
         return self.brain.add_memory("observation", summary, memory_meta)
     
+    async def _log_to_timeline(self, msg: Dict[str, Any], bus: str, meta: Dict[str, Any]):
+        """
+        Log observation to Time Machine timeline.
+        
+        Converts bus messages into structured timeline events for complete observability.
+        """
+        topic = msg.get("topic", "unknown")
+        
+        # Determine event severity based on topic and content
+        severity = EventSeverity.INFO
+        if topic in ["error", "critical"]:
+            severity = EventSeverity.ERROR
+        elif "error" in msg.get("status", "").lower():
+            severity = EventSeverity.ERROR
+        elif "warning" in topic:
+            severity = EventSeverity.WARNING
+        
+        # Determine event category based on bus and topic
+        category = EventCategory.SYSTEM_EVENT
+        if bus == "main":
+            if topic == "user_input":
+                category = EventCategory.USER_INPUT
+            elif topic in ["intent", "effect"]:
+                category = EventCategory.AGENT_ACTION
+            elif topic == "error":
+                category = EventCategory.ERROR_EVENT
+        elif bus == "collab":
+            category = EventCategory.COLLABORATION
+        elif bus == "private":
+            category = EventCategory.AGENT_ACTION
+        
+        # Create timeline event
+        event = TimelineEvent(
+            severity=severity,
+            category=category,
+            event_type=topic,
+            description=msg.get("content", "") or msg.get("message", "") or json.dumps(msg)[:200],
+            bus=bus,
+            agent_id=msg.get("from"),
+            task_root=msg.get("task_root"),
+            correlation_id=msg.get("correlation_id") or msg.get("id"),
+            payload=msg,
+            tags=meta.get("tags", []),
+            metadata=meta,
+        )
+        
+        # Log to timeline asynchronously
+        try:
+            await self.time_machine.log_event(event)
+        except Exception as e:
+            # Don't crash observation if timeline logging fails
+            pass
+    
     def get_stats(self) -> Dict[str, Any]:
         """Get BSM statistics"""
         return {
@@ -465,4 +528,5 @@ class BSM:
             "context_provided": self._context_provided_count,
             "monitored_private_buses": len(self._monitored_private_buses),
             "private_bus_ids": list(self._monitored_private_buses),
+            "time_machine_enabled": self.time_machine is not None,
         }
