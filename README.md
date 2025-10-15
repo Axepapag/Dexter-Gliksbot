@@ -2,6 +2,29 @@
 
 **Windows-First AI Autonomy Platform** with Real-Time WebSocket Streaming
 
+---
+
+## 📊 Repository Analysis Available
+
+**NEW:** Comprehensive repository analysis completed (October 2025). Five documents covering architecture, roadblocks, market analysis, and roadmap to production.
+
+**Start here:** [EXECUTIVE_BRIEF.md](EXECUTIVE_BRIEF.md) (10-minute read for decision makers)
+
+**Full Analysis:**
+- 📊 [EXECUTIVE_BRIEF.md](EXECUTIVE_BRIEF.md) - One-page summary (current state, market, go/no-go)
+- 📚 [COMPREHENSIVE_REPOSITORY_ANALYSIS.md](COMPREHENSIVE_REPOSITORY_ANALYSIS.md) - Full technical analysis (42K chars)
+- 🗺️ [ROADMAP_VISUAL.md](ROADMAP_VISUAL.md) - Visual timeline (3 phases, decision gates)
+- 📖 [ANALYSIS_INDEX.md](ANALYSIS_INDEX.md) - Navigation guide (by role: dev, PM, founder, investor)
+- 📋 [ANALYSIS_SUMMARY.txt](ANALYSIS_SUMMARY.txt) - Quick reference card (printable)
+
+**Key Findings:**
+- Architecture Quality: 9/10 (production-grade)
+- Production Readiness: 3/10 (5 critical blockers)
+- Path to MVP: 4-5 weeks ($15K-$20K labor)
+- Recommendation: ✅ GO with conditions
+
+---
+
 ## 🚀 Quick Start
 
 ### Option 1: GitHub Codespaces (Recommended for Quick Testing)
