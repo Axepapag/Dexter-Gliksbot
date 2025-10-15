@@ -70,8 +70,8 @@ public partial class MainViewModel : ObservableObject
 
         try
         {
-            // Connect WebSocket channels
-            await _wsClient.ConnectAsync("ws://localhost:8765");
+            // Connect WebSocket channels (baseUrl already set in constructor)
+            await _wsClient.ConnectAsync();
 
             // Load initial data
             await AgentRoster.LoadAgentsAsync();
@@ -114,7 +114,7 @@ public partial class MainViewModel : ObservableObject
     {
         _wsClient.Connected -= OnWebSocketConnected;
         _wsClient.Disconnected -= OnWebSocketDisconnected;
-        _wsClient.DisconnectAsync().Wait();
+        _wsClient.Disconnect();  // Changed from DisconnectAsync().Wait()
         
         AgentRoster.Dispose();
         Logs.Dispose();

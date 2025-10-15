@@ -25,6 +25,10 @@ public class DexterWebSocketClient : IDisposable
     public event EventHandler<MissionUpdateEventArgs>? MissionUpdated;
     public event EventHandler<PerformanceDataEventArgs>? PerformanceDataReceived;
     public event EventHandler<ConfigChangedEventArgs>? ConfigChanged;
+    
+    // Connection lifecycle events
+    public event EventHandler? Connected;
+    public event EventHandler? Disconnected;
 
     public bool IsConnected { get; private set; }
 
@@ -75,6 +79,9 @@ public class DexterWebSocketClient : IDisposable
 
             IsConnected = true;
             _logger.LogInformation("Connected to all WebSocket channels");
+            
+            // Raise Connected event
+            Connected?.Invoke(this, EventArgs.Empty);
 
             await Task.CompletedTask;
         }
@@ -99,6 +106,9 @@ public class DexterWebSocketClient : IDisposable
 
         IsConnected = false;
         _logger.LogInformation("Disconnected from WebSocket channels");
+        
+        // Raise Disconnected event
+        Disconnected?.Invoke(this, EventArgs.Empty);
     }
 
     private void HandleLogMessage(string json)
@@ -204,12 +214,9 @@ public class DexterWebSocketClient : IDisposable
 
     public void Dispose()
     {
+        // Disconnect will close all websockets
+        // WebSocketSharp's WebSocket doesn't implement IDisposable, so no need to call Dispose
         Disconnect();
-        _wsLogs?.Dispose();
-        _wsAgents?.Dispose();
-        _wsMissions?.Dispose();
-        _wsPerformance?.Dispose();
-        _wsConfig?.Dispose();
     }
 }
 

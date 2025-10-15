@@ -150,7 +150,7 @@ public partial class LogsViewModel : ObservableObject
 
         // Strategy: Remove oldest TRACE and INFO logs first
         var evictionCandidates = Logs
-            .Where(l => l.Level == LogLevel.TRACE || l.Level == LogLevel.INFO)
+            .Where(l => l.Level == Models.LogLevel.TRACE || l.Level == Models.LogLevel.INFO)
             .OrderBy(l => l.Timestamp)
             .Take(1000) // Evict in batches of 1000
             .ToList();
@@ -159,7 +159,7 @@ public partial class LogsViewModel : ObservableObject
         {
             // If no TRACE/INFO, evict oldest WARN logs
             evictionCandidates = Logs
-                .Where(l => l.Level == LogLevel.WARN)
+                .Where(l => l.Level == Models.LogLevel.WARN)
                 .OrderBy(l => l.Timestamp)
                 .Take(500)
                 .ToList();
@@ -223,12 +223,14 @@ public partial class LogsViewModel : ObservableObject
             if (ShowError) levels.Add("ERROR");
             if (ShowCritical) levels.Add("CRITICAL");
 
-            var success = await _apiClient.ExportLogsAsync(
-                format: "jsonl",
-                levels: levels,
-                agentId: string.IsNullOrEmpty(FilterAgent) ? null : FilterAgent,
-                textSearch: string.IsNullOrEmpty(FilterText) ? null : FilterText
-            );
+            var filter = new LogFilter
+            {
+                Levels = levels,
+                AgentIds = string.IsNullOrEmpty(FilterAgent) ? new() : new() { FilterAgent },
+                SearchText = FilterText ?? ""
+            };
+
+            var success = await _apiClient.ExportLogsAsync("logs_export.jsonl", filter);
 
             StatusMessage = success ? "Logs exported successfully" : "Export failed";
             _logger.LogInformation("Logs exported to JSONL: {Success}", success);
@@ -257,12 +259,14 @@ public partial class LogsViewModel : ObservableObject
             if (ShowError) levels.Add("ERROR");
             if (ShowCritical) levels.Add("CRITICAL");
 
-            var success = await _apiClient.ExportLogsAsync(
-                format: "csv",
-                levels: levels,
-                agentId: string.IsNullOrEmpty(FilterAgent) ? null : FilterAgent,
-                textSearch: string.IsNullOrEmpty(FilterText) ? null : FilterText
-            );
+            var filter = new LogFilter
+            {
+                Levels = levels,
+                AgentIds = string.IsNullOrEmpty(FilterAgent) ? new() : new() { FilterAgent },
+                SearchText = FilterText ?? ""
+            };
+
+            var success = await _apiClient.ExportLogsAsync("logs_export.csv", filter);
 
             StatusMessage = success ? "Logs exported successfully" : "Export failed";
             _logger.LogInformation("Logs exported to CSV: {Success}", success);
@@ -295,11 +299,11 @@ public partial class LogsViewModel : ObservableObject
         // Level filter
         var levelPass = log.Level switch
         {
-            LogLevel.TRACE => ShowTrace,
-            LogLevel.INFO => ShowInfo,
-            LogLevel.WARN => ShowWarn,
-            LogLevel.ERROR => ShowError,
-            LogLevel.CRITICAL => ShowCritical,
+            Models.LogLevel.TRACE => ShowTrace,
+            Models.LogLevel.INFO => ShowInfo,
+            Models.LogLevel.WARN => ShowWarn,
+            Models.LogLevel.ERROR => ShowError,
+            Models.LogLevel.CRITICAL => ShowCritical,
             _ => false
         };
 

@@ -34,7 +34,7 @@ public partial class App : Application
             new DexterApiClient("http://localhost:8765", sp.GetRequiredService<ILogger<DexterApiClient>>()));
         
         services.AddSingleton<DexterWebSocketClient>(sp =>
-            new DexterWebSocketClient(sp.GetRequiredService<ILogger<DexterWebSocketClient>>()));
+            new DexterWebSocketClient("http://localhost:8765", sp.GetRequiredService<ILogger<DexterWebSocketClient>>()));
 
         // ViewModels
         services.AddSingleton<AgentRosterViewModel>();
