@@ -401,6 +401,55 @@ async def debug_cache() -> Dict[str, Any]:
 
 
 # ============================================================================
+# Additional WebSocket Endpoints (Cockpit Compatibility)
+# ============================================================================
+
+@app.websocket("/ws/logs")
+async def websocket_logs(websocket: WebSocket, client_id: Optional[str] = Query(None)):
+    """WebSocket endpoint for logs only (delegates to /ws/cockpit with log filter)"""
+    return await websocket_cockpit(
+        websocket=websocket,
+        event_types="LOG",
+        client_id=client_id or f"logs-{uuid.uuid4().hex[:8]}"
+    )
+
+@app.websocket("/ws/agents")
+async def websocket_agents(websocket: WebSocket, client_id: Optional[str] = Query(None)):
+    """WebSocket endpoint for agent status updates (delegates to /ws/cockpit)"""
+    return await websocket_cockpit(
+        websocket=websocket,
+        event_types="AGENT_STATUS",
+        client_id=client_id or f"agents-{uuid.uuid4().hex[:8]}"
+    )
+
+@app.websocket("/ws/missions")
+async def websocket_missions(websocket: WebSocket, client_id: Optional[str] = Query(None)):
+    """WebSocket endpoint for mission updates (delegates to /ws/cockpit)"""
+    return await websocket_cockpit(
+        websocket=websocket,
+        event_types="MISSION_PROGRESS,MISSION_COMPLETE",
+        client_id=client_id or f"missions-{uuid.uuid4().hex[:8]}"
+    )
+
+@app.websocket("/ws/performance")
+async def websocket_performance(websocket: WebSocket, client_id: Optional[str] = Query(None)):
+    """WebSocket endpoint for performance metrics (delegates to /ws/cockpit)"""
+    return await websocket_cockpit(
+        websocket=websocket,
+        event_types="PERFORMANCE",
+        client_id=client_id or f"performance-{uuid.uuid4().hex[:8]}"
+    )
+
+@app.websocket("/ws/config")
+async def websocket_config(websocket: WebSocket, client_id: Optional[str] = Query(None)):
+    """WebSocket endpoint for config changes (delegates to /ws/cockpit)"""
+    return await websocket_cockpit(
+        websocket=websocket,
+        event_types="CONFIG_CHANGED",
+        client_id=client_id or f"config-{uuid.uuid4().hex[:8]}"
+    )
+
+# ============================================================================
 # Root Endpoint
 # ============================================================================
 
@@ -415,7 +464,12 @@ async def root() -> Dict[str, str]:
         "description": "Real-time WebSocket streaming for Dexter-Gliksbot Cockpit UI",
         "endpoints": {
             "health": "GET /health, /healthz",
-            "websocket": "WS /ws/cockpit (real-time event streaming)",
+            "websocket": "WS /ws/cockpit (unified real-time streaming)",
+            "websocket_logs": "WS /ws/logs (log events only)",
+            "websocket_agents": "WS /ws/agents (agent status only)",
+            "websocket_missions": "WS /ws/missions (mission updates only)",
+            "websocket_performance": "WS /ws/performance (metrics only)",
+            "websocket_config": "WS /ws/config (config changes only)",
             "websocket_health": "GET /ws/health (WebSocket system status)",
             "stats": "GET /stats (system statistics)",
             "debug_connections": "GET /debug/connections (active WebSocket clients)",
