@@ -35,12 +35,18 @@ from dexter_autonomy.core.triple_bus import TripleBusSystem, get_global_triple_b
 from dexter_autonomy.api.websocket_manager import WebSocketManager
 from dexter_autonomy.api.connection_manager import ClientSubscription
 from dexter_autonomy.api.config_routes import router as config_router
+from dexter_autonomy.api.time_machine_routes import router as time_machine_router, set_time_machine
+from dexter_autonomy.brain.time_machine import TimeMachine
+from dexter_autonomy.brain.memory import BrainDB
+from dexter_autonomy.agents.bsm import BSM
 
 logger = logging.getLogger(__name__)
 
 # Global instances
 triple_bus: Optional[TripleBusSystem] = None
 ws_manager: Optional[WebSocketManager] = None
+time_machine: Optional[TimeMachine] = None
+bsm: Optional[BSM] = None
 
 
 @asynccontextmanager
@@ -50,14 +56,18 @@ async def lifespan(app: FastAPI):
     
     Startup:
     - Initialize TripleBus system
+    - Initialize Time Machine
+    - Initialize BSM with Time Machine integration
     - Create WebSocketManager
     - Subscribe to all buses
     
     Shutdown:
+    - Stop BSM
+    - Stop Time Machine
     - Stop WebSocketManager
     - Stop TripleBus system
     """
-    global triple_bus, ws_manager
+    global triple_bus, ws_manager, time_machine, bsm
     
     logger.info("Starting Dexter UI Bridge...")
     
@@ -65,6 +75,33 @@ async def lifespan(app: FastAPI):
     triple_bus = get_global_triple_bus()
     await triple_bus.start_all()
     logger.info("TripleBus system started")
+    
+    # Initialize Time Machine
+    time_machine = TimeMachine(
+        timeline_db="./data/timeline.db",
+        snapshot_db="./data/snapshots.db",
+        snapshot_dir="./data/snapshots",
+        auto_snapshot_interval=300.0,  # 5 minutes
+        retention_days=30,
+        enable_compression=True,
+    )
+    await time_machine.start()
+    set_time_machine(time_machine)
+    logger.info("Time Machine started")
+    
+    # Initialize Brain
+    brain = BrainDB(db_path="./data/brain.db")
+    logger.info("Brain initialized")
+    
+    # Initialize BSM with Time Machine integration
+    bsm = BSM(
+        buses=triple_bus,
+        brain=brain,
+        model=None,  # Can be configured with LLM model
+        time_machine=time_machine,
+    )
+    await bsm.start()
+    logger.info("BSM started (omniscient observer active)")
     
     # Initialize WebSocketManager
     ws_manager = WebSocketManager(triple_bus)
@@ -77,6 +114,14 @@ async def lifespan(app: FastAPI):
     
     # Shutdown
     logger.info("Shutting down UI Bridge...")
+    
+    if bsm:
+        await bsm.stop()
+        logger.info("BSM stopped")
+    
+    if time_machine:
+        await time_machine.stop()
+        logger.info("Time Machine stopped")
     
     if ws_manager:
         await ws_manager.stop()
@@ -109,6 +154,9 @@ app.add_middleware(
 # Include configuration routes
 app.include_router(config_router)
 
+# Include Time Machine routes
+app.include_router(time_machine_router)
+
 
 # ============================================================================
 # Health Check Endpoints
@@ -122,7 +170,7 @@ async def health_check() -> JSONResponse:
     
     Returns:
         - status: "ok" if system operational
-        - components: Status of TripleBus and WebSocketManager
+        - components: Status of all system components
     """
     try:
         health_status = {
@@ -138,6 +186,17 @@ async def health_check() -> JSONResponse:
                     "status": "running" if ws_manager and ws_manager._started else "stopped",
                     "active_connections": len(ws_manager.connection_manager.active_connections) if ws_manager else 0,
                     "event_history_size": len(ws_manager.connection_manager.event_history) if ws_manager else 0,
+                },
+                "time_machine": {
+                    "status": "running" if time_machine and time_machine._started else "stopped",
+                    "auto_snapshot_interval": time_machine.auto_snapshot_interval if time_machine else None,
+                    "retention_days": time_machine.retention_days if time_machine else None,
+                },
+                "bsm": {
+                    "status": "running" if bsm and bsm._started else "stopped",
+                    "observations": bsm._observation_count if bsm else 0,
+                    "context_provided": bsm._context_provided_count if bsm else 0,
+                    "time_machine_enabled": bsm.time_machine is not None if bsm else False,
                 }
             }
         }
