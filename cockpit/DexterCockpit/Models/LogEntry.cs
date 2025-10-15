@@ -34,7 +34,7 @@ public enum LogTopic
 public partial class LogEntry : ObservableObject
 {
     [ObservableProperty]
-    private string id = Guid.NewGuid().ToString();
+    private Guid id = Guid.NewGuid();
 
     [ObservableProperty]
     private DateTime timestamp = DateTime.UtcNow;
