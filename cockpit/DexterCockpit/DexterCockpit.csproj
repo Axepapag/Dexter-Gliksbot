@@ -6,7 +6,7 @@
     <UseWPF>true</UseWPF>
     <Nullable>enable</Nullable>
     <RootNamespace>DexterCockpit</RootNamespace>
-    <ApplicationIcon>Assets\dexter.ico</ApplicationIcon>
+    <!-- <ApplicationIcon>Assets\dexter.ico</ApplicationIcon> TODO: Add icon file -->
     <Company>Dexter Autonomy</Company>
     <Product>Dexter Mission Control</Product>
     <Version>0.1.0</Version>
