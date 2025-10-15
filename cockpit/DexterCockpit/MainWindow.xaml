@@ -90,8 +90,7 @@
                             <xcad:LayoutAnchorable Title="Agent Roster" 
                                                    CanClose="False" 
                                                    CanHide="True"
-                                                   CanFloat="True"
-                                                   IconSource="/Resources/agent-icon.png">
+                                                   CanFloat="True">
                                 <views:AgentRosterView DataContext="{Binding AgentRoster}"/>
                             </xcad:LayoutAnchorable>
                         </xcad:LayoutAnchorablePane>
@@ -100,14 +99,12 @@
                         <xcad:LayoutDocumentPane>
                             <!-- Main Chat Window -->
                             <xcad:LayoutDocument Title="Dexter Chat" 
-                                                 CanClose="False"
-                                                 IconSource="/Resources/chat-icon.png">
+                                                 CanClose="False">
                                 <views:ChatView DataContext="{Binding Chat}"/>
                             </xcad:LayoutDocument>
 
                             <!-- Performance Monitor -->
-                            <xcad:LayoutDocument Title="Performance Monitor"
-                                                 IconSource="/Resources/chart-icon.png">
+                            <xcad:LayoutDocument Title="Performance Monitor">
                                 <views:PerformanceView DataContext="{Binding Performance}"/>
                             </xcad:LayoutDocument>
 
@@ -116,12 +113,11 @@
                         </xcad:LayoutDocumentPane>
 
                         <!-- RIGHT: Docked Windows (future: Unity, QuickBooks, etc.) -->
-                        <xcad:LayoutAnchorablePane DockWidth="350">
-                            <xcad:LayoutAnchorable Title="Docked Windows" 
+                        <xcad:LayoutAnchorablePane DockWidth="250">
+                            <xcad:LayoutAnchorable Title="Docked Windows"
                                                    CanClose="False"
                                                    CanHide="True"
-                                                   CanFloat="True"
-                                                   IconSource="/Resources/window-icon.png">
+                                                   CanFloat="True">
                                 <TextBlock Text="External app docking (Phase 2)" 
                                            VerticalAlignment="Center" 
                                            HorizontalAlignment="Center"
@@ -137,8 +133,7 @@
                             <xcad:LayoutAnchorable Title="Real-Time Logs" 
                                                    CanClose="False"
                                                    CanHide="True"
-                                                   CanFloat="True"
-                                                   IconSource="/Resources/log-icon.png">
+                                                   CanFloat="True">
                                 <views:LogsView DataContext="{Binding Logs}"/>
                             </xcad:LayoutAnchorable>
                         </xcad:LayoutAnchorablePane>
