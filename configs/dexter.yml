@@ -1,8 +1,0 @@
-server:
-  host: 127.0.0.1
-  port: 8765
-ollama:
-  host: "http://127.0.0.1:11434"
-tesseract_path: "C:/Program Files/Tesseract-OCR/tesseract.exe"
-data_dir: "./data"
-collab_dir: "./collaboration"

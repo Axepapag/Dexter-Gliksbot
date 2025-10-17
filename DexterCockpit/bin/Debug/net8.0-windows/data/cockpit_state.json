@@ -1,0 +1,80 @@
+{
+  "dockedWindow": null,
+  "agents": [
+    {
+      "tabId": "6b2f0bd16b08418cbf5ee30b568d2ccf",
+      "displayName": "Local Tiny Control",
+      "baseUrl": "http://127.0.0.1:11434",
+      "apiKeyEnv": "",
+      "model": "qwen2.5:3b-instruct",
+      "temperature": 0.1,
+      "systemPrompt": "You are Dexter\u0027s local fallback model. Operate deterministically and only emit actions that\ncan be executed safely under the deny list.\n",
+      "sessionId": "local-tiny",
+      "targetTitleFallback": "",
+      "monitorEnabled": true,
+      "templateId": "slot:local-tiny"
+    },
+    {
+      "tabId": "8d952c6669c842f98ee6262172b9f61d",
+      "displayName": "Deepseek Cloud",
+      "baseUrl": "https://ollama.com",
+      "apiKeyEnv": "OLLAMA_CLOUD_KEY",
+      "model": "deepseek-v3.1:671b-cloud",
+      "temperature": 0.2,
+      "systemPrompt": "You are Deepseek Cloud, a Dexter cloud agent running Ollama model \u0060deepseek-v3.1:671b-cloud\u0060. You control the docked Windows application through Dexter\u0027s automation abilities (run_process, type_text, hotkey, click, ocr). Think step-by-step, request clarification when needed, respect the deny list, and never bypass safety rules.",
+      "sessionId": "session-deepseek",
+      "targetTitleFallback": "",
+      "monitorEnabled": false,
+      "templateId": "cloud:deepseek-v3.1:671b-cloud"
+    },
+    {
+      "tabId": "cd9b9212c38e44d49a6b160129b694ae",
+      "displayName": "Deepseek Cloud",
+      "baseUrl": "https://ollama.com",
+      "apiKeyEnv": "OLLAMA_CLOUD_KEY",
+      "model": "deepseek-v3.1:671b-cloud",
+      "temperature": 0.2,
+      "systemPrompt": "You are Deepseek Cloud, a Dexter cloud agent running Ollama model \u0060deepseek-v3.1:671b-cloud\u0060. You control the docked Windows application through Dexter\u0027s automation abilities (run_process, type_text, hotkey, click, ocr). Think step-by-step, request clarification when needed, respect the deny list, and never bypass safety rules.",
+      "sessionId": "session-deepseek",
+      "targetTitleFallback": "",
+      "monitorEnabled": false,
+      "templateId": "cloud:deepseek-v3.1:671b-cloud"
+    },
+    {
+      "tabId": "6c2a6f98ebf04503a2d4ec271d4bba5a",
+      "displayName": "Deepseek Cloud",
+      "baseUrl": "https://ollama.com",
+      "apiKeyEnv": "OLLAMA_CLOUD_KEY",
+      "model": "deepseek-v3.1:671b-cloud",
+      "temperature": 0.2,
+      "systemPrompt": "You are Deepseek Cloud, a Dexter cloud agent running Ollama model \u0060deepseek-v3.1:671b-cloud\u0060. You control the docked Windows application through Dexter\u0027s automation abilities (run_process, type_text, hotkey, click, ocr). Think step-by-step, request clarification when needed, respect the deny list, and never bypass safety rules.",
+      "sessionId": "session-deepseek",
+      "targetTitleFallback": "",
+      "monitorEnabled": false,
+      "templateId": "cloud:deepseek-v3.1:671b-cloud"
+    },
+    {
+      "tabId": "83dba9af6cbe4129b203831dc3a5a339",
+      "displayName": "Deepseek Cloud",
+      "baseUrl": "https://ollama.com",
+      "apiKeyEnv": "OLLAMA_CLOUD_KEY",
+      "model": "deepseek-v3.1:671b-cloud",
+      "temperature": 0.2,
+      "systemPrompt": "You are Deepseek Cloud, a Dexter cloud agent running Ollama model \u0060deepseek-v3.1:671b-cloud\u0060. You control the docked Windows application through Dexter\u0027s automation abilities (run_process, type_text, hotkey, click, ocr). Think step-by-step, request clarification when needed, respect the deny list, and never bypass safety rules.",
+      "sessionId": "session-deepseek",
+      "targetTitleFallback": "",
+      "monitorEnabled": false,
+      "templateId": "cloud:deepseek-v3.1:671b-cloud"
+    }
+  ],
+  "dexterHttpUrl": "",
+  "dexterWsUrl": "",
+  "dockedHistory": [
+    {
+      "lastHandle": 8717628,
+      "lastTitle": "DockedAppsView.xaml - Untitled (Workspace) - Visual Studio Code [Administrator]",
+      "updatedAt": "2025-10-16T23:23:38.3753864+00:00",
+      "displayHint": "DockedAppsView.xaml - Untitled (Workspace) - Visual Studio Code [Administrator]"
+    }
+  ]
+}

@@ -1,0 +1,150 @@
+<UserControl x:Class="DexterCockpit.AgentTabsControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:DexterCockpit"
+             xmlns:state="clr-namespace:DexterCockpit.State"
+             Background="#FF121212">
+    <Grid>
+        <TabControl x:Name="TabHost"
+                    ItemsSource="{Binding Tabs}"
+                    SelectedItem="{Binding SelectedTab, Mode=TwoWay}"
+                    HorizontalContentAlignment="Stretch">
+            <TabControl.ItemTemplate>
+                <DataTemplate DataType="{x:Type state:AgentTabViewModel}">
+                    <TextBlock Text="{Binding DisplayName}" Margin="4,0"/>
+                </DataTemplate>
+            </TabControl.ItemTemplate>
+            <TabControl.ContentTemplate>
+                <DataTemplate DataType="{x:Type state:AgentTabViewModel}">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="8" >
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,12" VerticalAlignment="Center">
+                                <TextBlock Text="Preset" Foreground="#FFDDDDDD" VerticalAlignment="Center"/>
+                                <ComboBox Width="220"
+                                          Margin="12,0,8,0"
+                                          ItemsSource="{Binding DataContext.TemplateOptions, RelativeSource={RelativeSource AncestorType=local:AgentTabsControl}}"
+                                          DisplayMemberPath="DisplayName"
+                                          SelectedValuePath="OptionId"
+                                          SelectedValue="{Binding SelectedTemplateId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          SelectionChanged="OnPresetSelectionChanged"/>
+                                <Button Content="Pop Out" Width="80" Height="26" Click="OnPopOutTab"/>
+                                <Button Content="Save Slot" Width="90" Height="26" Margin="8,0,0,0" Click="OnSaveSlot"/>
+                            </StackPanel>
+
+                            <TextBlock Text="Display Name" Foreground="#FFDDDDDD" Margin="0,0,0,4"/>
+                            <TextBox Text="{Binding DisplayName, UpdateSourceTrigger=PropertyChanged}" />
+
+                            <TextBlock Text="Session ID" Foreground="#FFDDDDDD" Margin="0,12,0,4"/>
+                            <TextBox Text="{Binding SessionId, UpdateSourceTrigger=PropertyChanged}" ToolTip="Identifier used for collaboration rooms or SharedBrain grouping." />
+
+                            <TextBlock Text="Target Title (fallback)" Foreground="#FFDDDDDD" Margin="0,12,0,4"/>
+                            <TextBox Text="{Binding TargetTitleFallback, UpdateSourceTrigger=PropertyChanged}" ToolTip="Used when no window is docked." />
+
+                            <TextBlock Text="Base URL" Foreground="#FFDDDDDD" Margin="0,12,0,4"/>
+                            <TextBox Text="{Binding BaseUrl, UpdateSourceTrigger=PropertyChanged}" />
+
+                            <TextBlock Text="API Key Env Var" Foreground="#FFDDDDDD" Margin="0,12,0,4"/>
+                            <TextBox Text="{Binding ApiKeyEnv, UpdateSourceTrigger=PropertyChanged}" />
+
+                            <TextBlock Text="Model" Foreground="#FFDDDDDD" Margin="0,12,0,4"/>
+                            <TextBox Text="{Binding Model, UpdateSourceTrigger=PropertyChanged}" />
+
+                            <StackPanel Orientation="Horizontal" Margin="0,12,0,4" VerticalAlignment="Center">
+                                <TextBlock Text="Temperature" Foreground="#FFDDDDDD" VerticalAlignment="Center"/>
+                                <Slider Minimum="0" Maximum="1"
+                                        Margin="12,0"
+                                        Width="160"
+                                        TickPlacement="BottomRight"
+                                        TickFrequency="0.05"
+                                        IsSnapToTickEnabled="True"
+                                        Value="{Binding Temperature, UpdateSourceTrigger=PropertyChanged}"/>
+                                <TextBlock Text="{Binding Temperature, StringFormat=F2}"
+                                           Foreground="#FFDDDDDD"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+
+                            <TextBlock Text="System Prompt" Foreground="#FFDDDDDD" Margin="0,12,0,4"/>
+                            <TextBox Text="{Binding SystemPrompt, UpdateSourceTrigger=PropertyChanged}"
+                                     AcceptsReturn="True"
+                                     Height="120"
+                                     TextWrapping="Wrap"
+                                     VerticalScrollBarVisibility="Auto"/>
+
+                            <CheckBox Content="Monitor Docked Window"
+                                      IsChecked="{Binding MonitorEnabled, Mode=TwoWay}"
+                                      Margin="0,12,0,0"
+                                      Foreground="#FFDDDDDD"
+                                      Checked="OnMonitorToggle"
+                                      Unchecked="OnMonitorToggle"/>
+
+                            <Separator Margin="0,16,0,12"/>
+
+                            <TextBlock Text="Natural-language command" Foreground="#FFDDDDDD" Margin="0,0,0,4"/>
+                            <DockPanel LastChildFill="True">
+                                <Button Content="Send"
+                                        Width="80"
+                                        Height="28"
+                                        DockPanel.Dock="Right"
+                                        Margin="8,0,0,0"
+                                        Click="OnSendNlCommand"/>
+                                <TextBox Text="{Binding CommandText, UpdateSourceTrigger=PropertyChanged}" Height="28" KeyDown="OnCommandTextKeyDown"/>
+                            </DockPanel>
+
+                            <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                <TextBox Text="{Binding QuickTypeText, UpdateSourceTrigger=PropertyChanged}" Width="220" Height="28" ToolTip="Text to type into the docked window."/>
+                                <Button Content="Type" Width="80" Height="28" Margin="8,0,0,0" Click="OnQuickType"/>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                <TextBox Text="{Binding QuickHotkeyChord, UpdateSourceTrigger=PropertyChanged}" Width="220" Height="28" ToolTip="Hotkey chord, e.g. CTRL+N"/>
+                                <Button Content="Hotkey" Width="80" Height="28" Margin="8,0,0,0" Click="OnQuickHotkey"/>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                <Button Content="OCR Docked Window"
+                                        Width="160"
+                                        Height="28"
+                                        Click="OnOcrDocked"
+                                        Margin="0,0,8,0"/>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                                <Button Content="Clear Log" Width="90" Height="28" Margin="0,0,8,0" Click="OnClearLog"/>
+                                <Button Content="Clear Errors" Width="90" Height="28" Margin="0,0,8,0" Click="OnClearErrors"/>
+                                <Button Content="Remove Tab" Width="100" Height="28" Click="OnRemoveTab"/>
+                            </StackPanel>
+
+                            <TextBlock Text="Log" Foreground="#FFDDDDDD" Margin="0,16,0,4"/>
+                            <Border BorderBrush="#FF303033" BorderThickness="1" CornerRadius="4">
+                                <ScrollViewer VerticalScrollBarVisibility="Auto" Height="160">
+                                    <TextBox Text="{Binding LogText}"
+                                             IsReadOnly="True"
+                                             TextWrapping="Wrap"
+                                             AcceptsReturn="True"
+                                             Background="Transparent"
+                                             BorderThickness="0"
+                                             Foreground="#FFCCCCCC"/>
+                                </ScrollViewer>
+                            </Border>
+                            
+                            <!-- Error display area -->
+                            <TextBlock Text="Errors" Foreground="#FFFF6B6B" Margin="0,16,0,4" Visibility="{Binding HasErrors, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                            <Border BorderBrush="#FF303033" BorderThickness="1" CornerRadius="4" Visibility="{Binding HasErrors, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <ScrollViewer VerticalScrollBarVisibility="Auto" Height="80">
+                                    <TextBox Text="{Binding ErrorText}"
+                                             IsReadOnly="True"
+                                             TextWrapping="Wrap"
+                                             AcceptsReturn="True"
+                                             Background="Transparent"
+                                             BorderThickness="0"
+                                             Foreground="#FFFF6B6B"/>
+                                </ScrollViewer>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </DataTemplate>
+            </TabControl.ContentTemplate>
+        </TabControl>
+    </Grid>
+</UserControl>
+

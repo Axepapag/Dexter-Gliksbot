@@ -1,0 +1,167 @@
+<UserControl x:Class="DexterCockpit.Views.MissionControlView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800"
+             Background="#1E1E1E">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        
+        <!-- DataTemplate for Mission Items -->
+        <DataTemplate x:Key="MissionItemTemplate">
+            <Border Background="#2D2D2D" BorderBrush="#3E3E3E" BorderThickness="1" 
+                    Margin="5" Padding="10" CornerRadius="4">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <!-- Mission Header -->
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="Bold" 
+                                     Foreground="White" Margin="0,0,0,5"/>
+                            <TextBlock Text="{Binding Description}" FontSize="12" 
+                                     Foreground="#AAAAAA" TextWrapping="Wrap"/>
+                        </StackPanel>
+                        
+                        <!-- Status Badge -->
+                        <Border Grid.Column="1" Background="{Binding StatusColor}" 
+                                Padding="8,4" CornerRadius="3" VerticalAlignment="Top">
+                            <TextBlock Text="{Binding StatusText}" FontSize="11" 
+                                     FontWeight="Bold" Foreground="White"/>
+                        </Border>
+                    </Grid>
+                    
+                    <!-- Progress Bar -->
+                    <ProgressBar Grid.Row="1" Height="20" Margin="0,10,0,5"
+                                Value="{Binding ProgressPercent}" Maximum="100"
+                                Foreground="#2196F3" Background="#3E3E3E"/>
+                    
+                    <!-- Mission Details -->
+                    <Grid Grid.Row="2" Margin="0,5,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Foreground="#888888" FontSize="10">
+                                <Run Text="Progress: "/>
+                                <Run Text="{Binding ProgressText}" Foreground="White"/>
+                            </TextBlock>
+                            <TextBlock Foreground="#888888" FontSize="10" Margin="0,3,0,0">
+                                <Run Text="Agents: "/>
+                                <Run Text="{Binding AgentsText}" Foreground="White"/>
+                            </TextBlock>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Foreground="#888888" FontSize="10">
+                                <Run Text="Elapsed: "/>
+                                <Run Text="{Binding ElapsedTime, StringFormat='{}{0:hh\\:mm\\:ss}'}" Foreground="White"/>
+                            </TextBlock>
+                            <TextBlock Foreground="#888888" FontSize="10" Margin="0,3,0,0">
+                                <Run Text="ID: "/>
+                                <Run Text="{Binding Id}" Foreground="White"/>
+                            </TextBlock>
+                        </StackPanel>
+                    </Grid>
+                    
+                    <!-- Current Step -->
+                    <TextBlock Grid.Row="3" Text="{Binding CurrentStep}" 
+                             FontSize="11" Foreground="#FFEB3B" 
+                             Margin="0,8,0,0" TextWrapping="Wrap"
+                             Visibility="{Binding CurrentStep, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </UserControl.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Header / Toolbar -->
+        <Border Grid.Row="0" Background="#252526" BorderBrush="#3E3E3E" 
+                BorderThickness="0,0,0,1" Padding="10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <TextBlock Text="🎯 Mission Control" FontSize="18" FontWeight="Bold" 
+                             Foreground="White" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="MissionCountText" Text="(0 active)" FontSize="12" 
+                             Foreground="#888888" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                </StackPanel>
+                
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button x:Name="RefreshButton" Content="🔄 Refresh" 
+                            Padding="10,5" Margin="5,0" Click="RefreshButton_Click"
+                            Background="#0E639C" Foreground="White" BorderThickness="0"/>
+                    <Button x:Name="NewMissionButton" Content="➕ New Mission" 
+                            Padding="10,5" Margin="5,0" Click="NewMissionButton_Click"
+                            Background="#0E639C" Foreground="White" BorderThickness="0"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+        
+        <!-- Missions List -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <ItemsControl x:Name="MissionsListBox" 
+                         ItemTemplate="{StaticResource MissionItemTemplate}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </ScrollViewer>
+        
+        <!-- Empty State -->
+        <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center"
+                   x:Name="EmptyState" Visibility="Collapsed">
+            <TextBlock Text="📋" FontSize="48" HorizontalAlignment="Center" Opacity="0.3"/>
+            <TextBlock Text="No missions yet" FontSize="16" Foreground="#888888" 
+                     HorizontalAlignment="Center" Margin="0,10,0,0"/>
+            <TextBlock Text="Click 'New Mission' to create one" FontSize="12" 
+                     Foreground="#666666" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+        </StackPanel>
+        
+        <!-- Status Bar -->
+        <Border Grid.Row="2" Background="#252526" BorderBrush="#3E3E3E" 
+                BorderThickness="0,1,0,0" Padding="10,5">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <TextBlock Grid.Column="0" x:Name="ConnectionStatusText" 
+                         Text="● Connected to Backend" FontSize="10" 
+                         Foreground="#4CAF50" VerticalAlignment="Center"/>
+                
+                <TextBlock Grid.Column="2" x:Name="LastUpdateText" 
+                         Text="Last update: Never" FontSize="10" 
+                         Foreground="#666666" VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

@@ -6,7 +6,6 @@ from ..core.triple_bus import TripleBusSystem, MainTopic
 from ..core.policy_overlay import CompositeDenyPolicy
 from ..tools.windows.ocr import ocr_hwnd
 from .action_executor import ActionExecutor
-from .aum import AUM
 from .bsm import BSM
 
 
@@ -16,14 +15,12 @@ class ChatDockAgent:
         buses: TripleBusSystem,
         policy: CompositeDenyPolicy,
         executor: ActionExecutor,
-        aum: AUM,
         bsm: BSM,
         tesseract_path: str | None,
     ) -> None:
         self.buses = buses
         self.policy = policy
         self.executor = executor
-        self.aum = aum
         self.bsm = bsm
         self.tesseract_path = tesseract_path
 

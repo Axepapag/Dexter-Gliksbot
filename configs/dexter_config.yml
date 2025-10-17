@@ -1,0 +1,379 @@
+# =====================================================================
+# DEXTER UNIFIED CONFIGURATION
+# =====================================================================
+# Single source of truth for Dexter-Gliksbot
+# Last Updated: October 16, 2025
+#
+# This file consolidates all configuration:
+# - Agent LLM slots (who runs where and how)
+# - Provider settings (endpoints, API keys, models)
+# - Security policy (deny lists for all resource types)
+# - System preferences (logging, timeouts, etc.)
+#
+# Changes are auto-detected and reloaded without restart
+# =====================================================================
+
+version: "1.0"
+environment: "development"  # development | staging | production
+
+# =====================================================================
+# AGENT SLOTS - LLM Configuration for Each Agent
+# =====================================================================
+agents:
+  
+  # PRIMARY: Central Orchestrator - Dexter
+  # Role: Conversations, decisions, multi-agent coordination
+  # Priority: HIGHEST - Must handle complex reasoning and safety decisions
+  dexter-orchestrator:
+    label: "Dexter Central Orchestrator"
+    description: "Master orchestrator, decision maker, safety enforcer"
+    
+    # Provider & Model
+    provider: "lmstudio"        # google, gemini, openai, anthropic, nvidia, etc.
+    endpoint: "https://generativelanguage.googleapis.com/v1beta2/"  # Use /models/{model}:generate for requests
+    api_key_env: "GOOGLE_API_KEY"
+    
+    # Performance
+    temperature: 0.15         # Low: deterministic decisions
+    max_output_tokens: 81920
+    timeout: 120
+    
+    # Gemini-specific (thinking)
+    thinking_enabled: true
+    thinking_budget: 15000    # More thinking for critical decisions
+    
+    # System prompt
+    system_prompt: |
+      You are Dexter, the central orchestrator and commander of this autonomy system.
+      
+      PRIMARY RESPONSIBILITIES:
+      1. SAFETY & SECURITY:
+         - Maintain absolute control over all system operations
+         - Enforce the deny list as the single source of truth
+         - Never allow any action that violates the deny list
+         - Monitor all field agents and intervene immediately if needed
+      
+      2. TEAM MANAGEMENT:
+         - Coordinate all field agents performing tasks
+         - Track progress of all active operations
+         - Provide support and guidance to field agents
+         - Allocate resources efficiently
+      
+      3. KNOWLEDGE & LEARNING:
+        
+         - Learn from every interaction to improve performance
+         - Understand user intent at the deepest level
+         - Retain context across long multi-turn conversations
+      
+      4. MISSION EXECUTION:
+         - Ensure mission accomplishment at every step
+         - Parse and understand docked applications
+         - Grant agentic abilities to approved applications
+         - Execute commands that are not denied by policy
+      
+      5. COMMUNICATION:
+         - Have deep, meaningful conversations with users
+         - Understand implicit requests and unspoken needs
+         - Provide clear status updates and progress reports
+         - Escalate issues when human intervention is required
+      
+      Remember: You are the diligent, always-on leader who ensures safe, 
+      effective operations with wisdom and accountability.
+
+  # SECONDARY: Brain/State Model - Learns from everything
+  # Role: Observation, learning, context provision
+  # Priority: HIGH - Must understand all interactions
+  bsm-brain:
+    label: "Brain State Model (BSM)"
+    description: "Omniscient observer, learner, context provider"
+    
+    provider: "openai"
+    model: "gpt-4o-mini"  # Specialized learning model
+    endpoint: "https://api.openai.com/v1"
+    api_key_env: "OPENAI_API_KEY"
+    
+    temperature: 0.3          # Slightly creative for pattern discovery
+    max_output_tokens: 2048
+    timeout: 60
+    
+    # LearnLM specific
+    thinking_enabled: false   # Learning model handles its own reasoning
+    
+    system_prompt: |
+      You are BSM (Brain/State Model), the learning component of Dexter.
+      
+      YOUR JOB: Understand and learn from EVERYTHING
+      - Every message on every event bus
+      - Every action taken
+      - Every error encountered
+      - Every user interaction
+      
+      YOUR DUTIES:
+      1. OBSERVE: Monitor all system activity
+      2. LEARN: Extract patterns and knowledge
+      3. STORE: Persist observations to memory
+      4. PROVIDE: Give context to other agents when needed
+      
+      
+      
+      Focus on: Patterns, relationships, temporal sequences, anomalies
+
+ 
+
+  # GENERAL AGENTS: Flexible workforce
+  # Role: Any task, collaborate when idle
+  # Priority: MEDIUM - Execute on demand
+  general-agent-1:
+    label: "General Agent 1"
+    description: "Flexible multi-purpose agent"
+    
+    provider: "openai"        # Fallback to OpenAI for compatibility
+    model: "gpt-4o-mini"
+    endpoint: "https://api.openai.com/v1"
+    api_key_env: "OPENAI_API_KEY"
+    
+    temperature: 0.7          # Creative and flexible
+    max_output_tokens: 2048
+    timeout: 90
+    
+    system_prompt: |
+      You are a general-purpose agent in the Dexter system.
+      
+      When ON TASK: Focus entirely on mission, execute with full capability
+      When IDLE: Collaborate with other agents, propose improvements, refine plans
+      
+      Always: Use context from BSM, follow Dexter's lead, respect deny list
+
+# =====================================================================
+# PROVIDERS - LLM Provider Configuration
+# =====================================================================
+providers:
+  
+  # Google Gemini - Primary for Dexter
+  aistudio:
+    type: "aistudio"
+    display_name: "Google Gemini"
+    models:
+      - "gemini-2.5-pro"           # Best quality, slow
+      - "gemini-2.5-flash"         # Fast, good quality
+      - "learnlm-1.5-pro-experimental"  # Learning specialized
+      - "gemini-2.0-flash"         # Older fast model
+    api_key_env: "GOOGLE_API_KEY"
+    timeout: 120
+    description: "Google's Gemini API with thinking and learning models"
+  
+  # Ollama - Local model fallback
+  ollama:
+    type: "ollama"
+    display_name: "Ollama (Local)"
+    endpoint: "http://127.0.0.1:11434"
+    models:
+      - "qwen2.5:3b-instruct"
+      - "llama2:latest"
+      - "mistral:latest"
+    timeout: 60
+    description: "Local Ollama instance for privacy and speed"
+  
+  # OpenAI - Reliable fallback
+  openai:
+    type: "openai"
+    display_name: "OpenAI"
+    endpoint: "https://api.openai.com/v1"
+    api_key_env: "OPENAI_API_KEY"
+    models:
+      - "gpt-4o"
+      - "gpt-4o-mini"
+      - "gpt-4-turbo"
+    timeout: 120
+    description: "OpenAI's GPT models"
+  
+  # Anthropic Claude - High quality
+  anthropic:
+    type: "anthropic"
+    display_name: "Anthropic Claude"
+    endpoint: "https://api.anthropic.com/v1"
+    api_key_env: "ANTHROPIC_API_KEY"
+    models:
+      - "claude-3-5-sonnet-20241022"
+      - "claude-3-opus-20240229"
+    timeout: 120
+    description: "Anthropic's Claude models"
+
+# =====================================================================
+# SECURITY POLICY - Deny Lists
+# =====================================================================
+security:
+  # Philosophy: Deny-first (only explicitly denied = blocked)
+  # Master rules apply globally, per-agent rules add restrictions
+  
+  # Global deny list (applies to ALL agents)
+  global_deny:
+    
+    processes:
+      deny_names:
+        - "cmd.exe /c format"
+        - "powershell.exe -NoProfile -Command Remove-Item -Recurse C:\\"
+        - "cipher.exe /w:"
+        - "shutdown.exe"
+        - "taskkill.exe /f"
+      deny_patterns:
+        - "format *"
+        - "del /s *"
+        - "rm -rf *"
+        - ".*\\.exe.*--system.*"
+    
+    files:
+      deny_globs:
+        - "C:\\Windows\\**"
+        - "C:\\Program Files\\**"
+        - "C:\\Program Files (x86)\\**"
+        - "C:\\Users\\*\\AppData\\**"
+        - "C:\\System Volume Information\\**"
+      deny_regexes:
+        - "^C:\\\\Windows(\\\\|$)"
+        - "^C:\\\\System32(\\\\|$)"
+        - ".*\\.sys$"
+      deny_extensions:
+        - ".sys"
+        - ".dll"
+        
+    
+    network:
+      deny_urls:
+        - "http://169.254.169.254"
+        - "http://localhost:4040"
+      deny_domains:
+        - "pastebin.com"
+        - "anonfiles.*"
+        - "*.internal"
+    
+    input:
+      deny_hotkeys:
+        - "ALT+F4"
+        - "CTRL+SHIFT+ESC"
+        - "WIN+R"
+        - "CTRL+ALT+DEL"
+      deny_window_classes:
+                 # Desktop
+      deny_window_titles:
+        - "Registry Editor"
+        - "Local Group Policy Editor"
+  
+  # Per-agent overrides (ADDITIONAL restrictions)
+  # These are merged with global_deny for each agent
+  per_agent_deny:
+    
+    action-executor:
+      # Additional restrictions for automation safety
+      files:
+        deny_extensions:
+          - ".bat"
+          - ".cmd"
+          - ".ps1"
+      processes:
+        deny_patterns:
+          - ".*powershell.*"
+          - ".*cmd.*"
+
+# =====================================================================
+# SYSTEM PREFERENCES
+# =====================================================================
+system:
+  
+  # Logging
+  logging:
+    level: "INFO"           # DEBUG | INFO | WARNING | ERROR | CRITICAL
+    format: "json"          # json | plaintext
+    output: "file"          # file | stdout | both
+    log_dir: "data/logs"
+    max_file_size: 104857600  # 100 MB
+    retention_days: 30
+  
+  # Brain/Memory
+  memory:
+    stm_budget_mb: 10240    # 10 GB RAM for short-term memory
+    ltm_path: "data/brain.db"
+    enable_embeddings: true  # For semantic search
+    enable_knowledge_graph: true
+    cleanup_interval_hours: 24
+  
+  # Event Bus
+  event_bus:
+    timeout_seconds: 30
+    max_queue_size: 10000
+    persistence: true
+    outbox_db: "data/outbox.db"
+  
+  # Celery Workers (background tasks)
+  celery:
+    broker: "redis://localhost:6379/0"
+    backend: "redis://localhost:6379/1"
+    worker_concurrency: 4
+    task_timeout: 3600  # 1 hour
+  
+  # OCR
+  ocr:
+    engine: "tesseract"
+    language: "eng"
+    confidence_threshold: 0.5
+    timeout_seconds: 10
+  
+  # Health checks
+  health_check:
+    interval_seconds: 60
+    timeout_seconds: 5
+    providers_to_check:
+      - "ollama"
+      - "google"
+      - "openai"
+
+# =====================================================================
+# REASON MESSAGES - User-friendly explanations for denials
+# =====================================================================
+reasons:
+  processes: "Process execution blocked by security policy."
+  files: "File operation blocked by security policy."
+  network: "Network request blocked by security policy."
+  input: "Input action blocked by security policy."
+  windows: "Target window blocked by security policy."
+
+# =====================================================================
+# FEATURE FLAGS - Enable/disable capabilities
+# =====================================================================
+features:
+  
+  # Windows automation
+  windows_automation: true
+  
+  # OCR/Vision
+  vision_ocr: true
+  
+  # Learning/Brain
+  learning_enabled: true
+  
+  # Collaboration (multi-agent)
+  collaboration_enabled: true
+  
+  # Thinking mode (Gemini 2.5 models)
+  thinking_enabled: true
+  
+  # Celery background tasks
+  background_tasks: true
+  
+  # WebSocket real-time updates
+  websocket_streaming: true
+
+# =====================================================================
+# MIGRATION INFO - Consolidation from old files
+# =====================================================================
+# This file replaces:
+# - configs/slots.yml (agent LLM configuration)
+# - configs/denylist.yml (security policy)
+# - configs/denylist.master.yml (master deny list)
+# - configs/policy_catalog.yml (policy definitions)
+# - configs/agents.overlays.yml (per-agent overrides)
+# - configs/dexter.yml (general settings)
+#
+# Date Consolidated: October 16, 2025
+# Migration Script: scripts/migrate_configs.py
+# =====================================================================

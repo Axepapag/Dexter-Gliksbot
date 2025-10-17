@@ -12,7 +12,6 @@ from ..core.triple_bus import TripleBusSystem, MainTopic, CollabTopic, PrivateTo
 from ..core.policy_overlay import CompositeDenyPolicy
 from ..brain.memory import BrainDB
 from ..agents.action_executor import ActionExecutor
-from ..agents.aum import AUM
 from ..agents.bsm import BSM
 from ..agents.chatdock import ChatDockAgent
 from .adapters.ollama_adapter import OllamaClient
@@ -42,7 +41,6 @@ class DexterOrchestrator:
         policy: CompositeDenyPolicy,
         brain: BrainDB,
         executor: ActionExecutor,
-        aum: AUM,
         bsm: BSM,
         chatdock: ChatDockAgent,
         config: Dict[str, Any]
@@ -51,7 +49,6 @@ class DexterOrchestrator:
         self.policy = policy
         self.brain = brain
         self.executor = executor
-        self.aum = aum
         self.bsm = bsm
         self.chatdock = chatdock
         self.config = config

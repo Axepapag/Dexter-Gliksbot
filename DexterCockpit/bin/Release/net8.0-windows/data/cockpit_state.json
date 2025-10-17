@@ -1,0 +1,226 @@
+{
+  "dockedWindow": {
+    "lastHandle": 19137162,
+    "lastTitle": "sources - Visual Studio Code [Administrator]",
+    "updatedAt": "2025-10-11T12:21:48.0676027+00:00",
+    "displayHint": "sources - Visual Studio Code [Administrator]"
+  },
+  "agents": [
+    {
+      "tabId": "dd419923c6a64fb99571c5aa0f69522d",
+      "displayName": "Local Tiny Control",
+      "baseUrl": "http://127.0.0.1:11434",
+      "apiKeyEnv": "",
+      "model": "qwen2.5:3b-instruct",
+      "temperature": 0.1,
+      "systemPrompt": "You are Dexter\u0027s local fallback model. Operate deterministically and only emit actions that\ncan be executed safely under the deny list.\n",
+      "sessionId": "local-tiny",
+      "targetTitleFallback": "",
+      "monitorEnabled": true,
+      "templateId": "slot:local-tiny"
+    },
+    {
+      "tabId": "aebbf6afdeee4e9ca7d516eb4cd9540d",
+      "displayName": "GPT-OSS 120B Cloud",
+      "baseUrl": "https://ollama.com",
+      "apiKeyEnv": "OLLAMA_CLOUD_KEY",
+      "model": "gpt-oss:120b-cloud",
+      "temperature": 0.2,
+      "systemPrompt": "You are GPT-OSS 120B Cloud, a Dexter cloud agent running Ollama model \u0060gpt-oss:120b-cloud\u0060. You control the docked Windows application through Dexter\u0027s automation abilities (run_process, type_text, hotkey, click, ocr). Think step-by-step, request clarification when needed, respect the deny list, and describe what you execute.",
+      "sessionId": "session-gpt-oss-120b",
+      "targetTitleFallback": "",
+      "monitorEnabled": true,
+      "templateId": "cloud:gpt-oss:120b-cloud"
+    },
+    {
+      "tabId": "3b3e6e6f1e524c888ac598e3ef701add",
+      "displayName": "Kimi K2 Cloud",
+      "baseUrl": "https://ollama.com",
+      "apiKeyEnv": "OLLAMA_API_KEY",
+      "model": "kimi-k2:1t-cloud",
+      "temperature": 0.2,
+      "systemPrompt": "You are Kimi K2 Cloud, a Dexter cloud agent running Ollama model \u0060kimi-k2:1t-cloud\u0060. You control the docked Windows application through Dexter\u0027s automation abilities (run_process, type_text, hotkey, click, ocr). Think step-by-step, request clarification when needed, respect the deny list, and describe what you execute.",
+      "sessionId": "session-kimi-k2",
+      "targetTitleFallback": "",
+      "monitorEnabled": true,
+      "templateId": "cloud:kimi-k2:1t-cloud"
+    },
+    {
+      "tabId": "dc51fd0c143c4198b3b897960ad9a2c1",
+      "displayName": "Qwen3 Coder Cloud",
+      "baseUrl": "https://ollama.com",
+      "apiKeyEnv": "OLLAMA_API_KEY",
+      "model": "qwen3-coder:480b-cloud",
+      "temperature": 0.2,
+      "systemPrompt": "You are Qwen3 Coder Cloud, a Dexter cloud agent running Ollama model \u0060qwen3-coder:480b-cloud\u0060. You control the docked Windows application through Dexter\u0027s automation abilities (run_process, type_text, hotkey, click, ocr). Think step-by-step, request clarification when needed, respect the deny list, and describe what you execute.",
+      "sessionId": "session-qwen3-coder",
+      "targetTitleFallback": "",
+      "monitorEnabled": true,
+      "templateId": "cloud:qwen3-coder:480b-cloud"
+    },
+    {
+      "tabId": "cab120cd8fac4b8f92c899276a39d4fd",
+      "displayName": "Agent 8",
+      "baseUrl": "",
+      "apiKeyEnv": "",
+      "model": "",
+      "temperature": 0.2,
+      "systemPrompt": "",
+      "sessionId": "local",
+      "targetTitleFallback": "",
+      "monitorEnabled": false,
+      "templateId": null
+    },
+    {
+      "tabId": "93271c4e34c7447d8e00c7509d30e4d7",
+      "displayName": "Agent 7",
+      "baseUrl": "",
+      "apiKeyEnv": "",
+      "model": "",
+      "temperature": 0.2,
+      "systemPrompt": "",
+      "sessionId": "local",
+      "targetTitleFallback": "",
+      "monitorEnabled": false,
+      "templateId": null
+    },
+    {
+      "tabId": "72a60de824984c9986e537a6ef4c44dc",
+      "displayName": "Agent 8",
+      "baseUrl": "",
+      "apiKeyEnv": "",
+      "model": "",
+      "temperature": 0.2,
+      "systemPrompt": "",
+      "sessionId": "local",
+      "targetTitleFallback": "",
+      "monitorEnabled": false,
+      "templateId": null
+    },
+    {
+      "tabId": "2667aceb47f548599712431817c85fa7",
+      "displayName": "Agent 9",
+      "baseUrl": "",
+      "apiKeyEnv": "",
+      "model": "",
+      "temperature": 0.2,
+      "systemPrompt": "",
+      "sessionId": "local",
+      "targetTitleFallback": "",
+      "monitorEnabled": false,
+      "templateId": null
+    },
+    {
+      "tabId": "1425979667174382b040c83f6f0201c6",
+      "displayName": "Agent 10",
+      "baseUrl": "",
+      "apiKeyEnv": "",
+      "model": "",
+      "temperature": 0.2,
+      "systemPrompt": "",
+      "sessionId": "local",
+      "targetTitleFallback": "",
+      "monitorEnabled": false,
+      "templateId": null
+    },
+    {
+      "tabId": "3e9b6befc9834bbcb6c622517fe7212d",
+      "displayName": "Agent 11",
+      "baseUrl": "",
+      "apiKeyEnv": "",
+      "model": "",
+      "temperature": 0.2,
+      "systemPrompt": "",
+      "sessionId": "local",
+      "targetTitleFallback": "",
+      "monitorEnabled": false,
+      "templateId": null
+    },
+    {
+      "tabId": "caac9543e30842d6848d3eac1f16cbfe",
+      "displayName": "Agent 12",
+      "baseUrl": "",
+      "apiKeyEnv": "",
+      "model": "",
+      "temperature": 0.2,
+      "systemPrompt": "",
+      "sessionId": "local",
+      "targetTitleFallback": "",
+      "monitorEnabled": false,
+      "templateId": null
+    },
+    {
+      "tabId": "fae95d07b75c44bd80dd62dc9d9bc0b5",
+      "displayName": "Agent 13",
+      "baseUrl": "",
+      "apiKeyEnv": "",
+      "model": "",
+      "temperature": 0.2,
+      "systemPrompt": "",
+      "sessionId": "local",
+      "targetTitleFallback": "",
+      "monitorEnabled": false,
+      "templateId": null
+    },
+    {
+      "tabId": "9ba279acde6e4b40b5b237982d683359",
+      "displayName": "Agent 14",
+      "baseUrl": "",
+      "apiKeyEnv": "",
+      "model": "",
+      "temperature": 0.2,
+      "systemPrompt": "",
+      "sessionId": "local",
+      "targetTitleFallback": "",
+      "monitorEnabled": false,
+      "templateId": null
+    },
+    {
+      "tabId": "4ece3e5ffa0046dd9727f7a238bcc24b",
+      "displayName": "Agent 15",
+      "baseUrl": "",
+      "apiKeyEnv": "",
+      "model": "",
+      "temperature": 0.2,
+      "systemPrompt": "",
+      "sessionId": "local",
+      "targetTitleFallback": "",
+      "monitorEnabled": false,
+      "templateId": null
+    }
+  ],
+  "dexterHttpUrl": "",
+  "dexterWsUrl": "",
+  "dockedHistory": [
+    {
+      "lastHandle": 19137162,
+      "lastTitle": "sources - Visual Studio Code [Administrator]",
+      "updatedAt": "2025-10-11T12:21:48.0676027+00:00",
+      "displayHint": "sources - Visual Studio Code [Administrator]"
+    },
+    {
+      "lastHandle": 38208522,
+      "lastTitle": "slots.yml - Visual Studio Code [Administrator]",
+      "updatedAt": "2025-10-11T09:20:52.1725628+00:00",
+      "displayHint": "slots.yml - Visual Studio Code [Administrator]"
+    },
+    {
+      "lastHandle": 1050714,
+      "lastTitle": "frame.py - sources - Visual Studio Code [Administrator]",
+      "updatedAt": "2025-10-11T09:13:40.8250194+00:00",
+      "displayHint": "frame.py - sources - Visual Studio Code [Administrator]"
+    },
+    {
+      "lastHandle": 21234188,
+      "lastTitle": "qwen3-coder - Google Chrome",
+      "updatedAt": "2025-10-11T06:54:30.7558031+00:00",
+      "displayHint": "qwen3-coder - Google Chrome"
+    },
+    {
+      "lastHandle": 264254,
+      "lastTitle": "Codex - sources - Visual Studio Code [Administrator]",
+      "updatedAt": "2025-10-11T01:29:56.006819+00:00",
+      "displayHint": "Codex - sources - Visual Studio Code [Administrator]"
+    }
+  ]
+}

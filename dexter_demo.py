@@ -44,9 +44,8 @@ async def main():
     
     # Create agents (all use TripleBusSystem now)
     executor = ActionExecutor(buses, policy, None)
-    aum = AUM("test-model", "http://localhost:11434", 0.1)
-    bsm = BSM("test-model", "http://localhost:11434", brain, 0.1)
-    chatdock = ChatDockAgent(buses, policy, executor, aum, bsm, None)
+    bsm = BSM(buses, brain, model=None)
+    chatdock = ChatDockAgent(buses, policy, executor, bsm, None)
     
     # Configuration for Dexter
     config = {
@@ -67,7 +66,6 @@ async def main():
         policy=policy,
         brain=brain,
         executor=executor,
-        aum=aum,
         bsm=bsm,
         chatdock=chatdock,
         config=config

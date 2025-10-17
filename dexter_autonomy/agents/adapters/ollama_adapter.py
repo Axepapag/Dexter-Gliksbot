@@ -53,6 +53,7 @@ class OllamaClient:
             "model": model,
             "messages": messages,
             "options": self._merge_options(temperature, options),
+            "stream": False,  # Disable streaming for simpler parsing
         }
         response = self._session.post(
             f"{self.host}/api/chat",
